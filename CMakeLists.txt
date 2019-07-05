@@ -4,6 +4,7 @@ project(ExMM)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(DEBUG_INFO ON) 
+set (CMAKE_CXX_STANDARD 11)
 
 set(OUTPUT_DIR ${CMAKE_BINARY_DIR}/CMakeOut/bin/ CACHE PATH "Path for output binary") 
 

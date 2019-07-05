@@ -1,15 +1,18 @@
-ExamplesRegistry::callback ExamplesRegistry::RunAll(ExamplesRegistry::Output &output)
+#include "examples-registry.hpp"
+
+ExamplesRegistry::Callback ExamplesRegistry::RunAll(Output &output)
 {
-	for (ExamplesRegistry::Item* item = first; item; item = item->next)
+	for (Item* item = first; item; item = item->next)
 	{
 		if (! item->callback(output))
 		{
-			return callback;
+			return item->callback;
 		}
 	}
+    return Callback();
 }
 
-void ExamplesRegistry::RegisterItem(ExamplesRegistry::Item* item)
+void ExamplesRegistry::RegisterItem(Item* item)
 {
 	if (first)
 	{
@@ -22,9 +25,10 @@ void ExamplesRegistry::RegisterItem(ExamplesRegistry::Item* item)
 	}
 }
 
-void ExamplesRegistry::Item::Item(Callback callback) : callback(callback)
+ExamplesRegistry::Item::Item(Callback callback) 
+    : callback(callback), next()
 {
-	ExamplesRegistry::RegisterItem(this);
+	RegisterItem(this);
 }
 
 ExamplesRegistry::Item* ExamplesRegistry::first;
