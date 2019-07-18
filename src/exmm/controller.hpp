@@ -3,6 +3,9 @@
 
 #include "registry.hpp"
 #include "platform.hpp"
+#include <functional>
+#include <map>
+#include <mutex>
 
 namespace ExMM
 {
@@ -66,6 +69,12 @@ namespace ExMM
             Registry::Remove(this);
         }
 
+        void ConnectInterruptHandler(int vector, std::function<void()> callback)
+        {
+            std::lock_guard<std::mutex> guard(interruptsMutex);
+            interrupts[vector] = callback;
+        }
+
         ControllerBase(const ControllerBase&) = delete;
         ControllerBase(ControllerBase&&) = delete;
         ControllerBase& operator=(const ControllerBase&) = delete;
@@ -83,8 +92,38 @@ namespace ExMM
             ioSpace = reinterpret_cast<RegisterSetType*>(Registry::Add(this, sizeof(RegisterSetType)));
         }
 
+        void TriggerInterrupt(int vector)
+        {
+            std::function<void()> routine;
+            if (LookupInterruptHandler(vector, routine)) return;
+
+            if (routine)
+            {
+                std::lock_guard<std::mutex> guard(interruptEntranceMutex);
+                routine();
+            }
+        }
+
     private:
         RegisterSetType* ioSpace;
+        
+        std::mutex interruptEntranceMutex;
+        std::map<int, std::function<void()>> interrupts;
+        std::mutex interruptsMutex;
+
+        bool LookupInterruptHandler(int vector, std::function<void()>& routine)
+        {
+            std::lock_guard<std::mutex> guard(interruptsMutex);
+
+            const auto handler = interrupts.find(vector);
+            if (handler == interrupts.end())
+            {
+                return true;
+            }
+
+            routine = handler->second;
+            return false;
+        }
 
     };
 }
