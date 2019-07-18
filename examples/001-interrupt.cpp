@@ -12,7 +12,7 @@ volatile struct Registers
     volatile int C;
 };
 
-struct Controller final : public ControllerBase<HookTypes::None, Registers>
+struct Controller001 final : public ControllerBase<HookTypes::None, Registers>
 {
     bool WaitForInterrupt()
     {
@@ -41,7 +41,7 @@ EXMM_DEMO(BasicInterrupt)
 
     bool triggered;
     {
-        Controller controller;
+        Controller001 controller;
         triggered = controller.WaitForInterrupt();
     }
 

@@ -12,7 +12,7 @@ volatile struct Registers
     volatile int C;
 };
 
-struct Controller final : public ControllerBase<HookTypes::None, Registers>
+struct Controller000 final : public ControllerBase<HookTypes::None, Registers>
 {
 };
 
@@ -20,7 +20,7 @@ EXMM_DEMO(Basic)
 {
     output << "Basic demo - no hooks" << std::endl;
 
-    const Controller controller;
+    const Controller000 controller;
     auto *registers = controller.GetIoSpace();
 
     registers->A = 42;
