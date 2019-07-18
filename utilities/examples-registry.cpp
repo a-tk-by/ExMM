@@ -1,15 +1,25 @@
 #include "examples-registry.hpp"
 
-ExamplesRegistry::Callback ExamplesRegistry::RunAll(Output &output)
+bool ExamplesRegistry::RunAll(
+    Output &output,
+    const std::function<void(const Callback&)>& success,
+    const std::function<void(const Callback&)>& fail
+)
 {
+    bool somethingFailed = false;
     for (Item* item = first; item; item = item->next)
     {
-        if (! item->callback(output))
+        if (item->callback.Function(output))
         {
-            return item->callback;
+            success(item->callback);
+        }
+        else
+        {
+            fail(item->callback);
+            somethingFailed = true;
         }
     }
-    return Callback();
+    return !somethingFailed;
 }
 
 void ExamplesRegistry::RegisterItem(Item* item)
@@ -25,6 +35,10 @@ void ExamplesRegistry::RegisterItem(Item* item)
     }
 }
 
+ExamplesRegistry::Callback::Callback(FunctionPointer function, const char* name): Function(function), Name(name)
+{
+}
+
 ExamplesRegistry::Item::Item(Callback callback) 
     : callback(callback), next()
 {
@@ -33,3 +47,4 @@ ExamplesRegistry::Item::Item(Callback callback)
 
 ExamplesRegistry::Item* ExamplesRegistry::first;
 ExamplesRegistry::Item* ExamplesRegistry::last;
+

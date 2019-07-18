@@ -3,15 +3,10 @@
 
 int main(int, char**)
 {
-    const ExamplesRegistry::Callback failed = ExamplesRegistry::RunAll(std::cout);
-    if (failed)
-    {
-        std::cerr << "Failed callback: " << failed << std::endl;
-        return 1;
-    }
-    else
-    {
-        std::cout << "Demo complete" << std::endl;
-        return 0;
-    }
+    return 
+    ExamplesRegistry::RunAll(
+        std::cout,
+        [](auto& callback) {std::cout << "[" << callback << "] success" << std::endl; },
+        [](auto& callback) {std::cerr << "[" << callback << "] failed" << std::endl;}
+        ) ? 0 : 1;
 }
