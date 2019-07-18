@@ -35,24 +35,9 @@ namespace ExMM
     };
 
     template<HookTypes HookType, typename RegisterSetType = void>
-    class ControllerBase : private ControllerInterface
+    class ControllerBase : ControllerInterface
     {
     public:
-        ExMM::HookTypes HookTypes() override
-        {
-            return HookType;
-        }
-
-        void DoHookWrite(void* data, size_t offset) override
-        {
-            HookWrite(reinterpret_cast<RegisterSetType*>(data), offset);
-        }
-
-        void DoHookRead(void* data, size_t offset) override
-        {
-            HookRead(reinterpret_cast<RegisterSetType*>(data), offset);
-        }
-
         virtual void HookRead(RegisterSetType* data, size_t offset)
         {}
 
@@ -105,6 +90,21 @@ namespace ExMM
         }
 
     private:
+        ExMM::HookTypes HookTypes() override
+        {
+            return HookType;
+        }
+
+        void DoHookWrite(void* data, size_t offset) override
+        {
+            HookWrite(reinterpret_cast<RegisterSetType*>(data), offset);
+        }
+
+        void DoHookRead(void* data, size_t offset) override
+        {
+            HookRead(reinterpret_cast<RegisterSetType*>(data), offset);
+        }
+
         RegisterSetType* ioSpace;
         
         std::mutex interruptEntranceMutex;
