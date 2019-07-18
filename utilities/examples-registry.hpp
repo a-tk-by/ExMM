@@ -39,6 +39,7 @@ public:
 
     static bool RunAll(
         Output &output, 
+        const std::function<void(const Callback&)>& started,
         const std::function<void(const Callback&)>& success,
         const std::function<void(const Callback&)>& fail
         );

@@ -6,7 +6,8 @@ int main(int, char**)
     return 
     ExamplesRegistry::RunAll(
         std::cout,
-        [](auto& callback) {std::cout << "[" << callback << "] success" << std::endl; },
-        [](auto& callback) {std::cerr << "[" << callback << "] failed" << std::endl;}
+        [](auto& callback) {std::cout << "[" << callback.Name << "]" << std::endl; },
+        [](auto& callback) {std::cout << "<complete>" << std::endl << std::endl; },
+        [](auto& callback) {std::cerr << "<failed>" << std::endl << std::endl;}
         ) ? 0 : 1;
 }

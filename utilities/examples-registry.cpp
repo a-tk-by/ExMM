@@ -2,6 +2,7 @@
 
 bool ExamplesRegistry::RunAll(
     Output &output,
+    const std::function<void(const Callback&)>& started,
     const std::function<void(const Callback&)>& success,
     const std::function<void(const Callback&)>& fail
 )
@@ -9,13 +10,14 @@ bool ExamplesRegistry::RunAll(
     bool somethingFailed = false;
     for (Item* item = first; item; item = item->next)
     {
+        if (started) started(item->callback);
         if (item->callback.Function(output))
         {
-            success(item->callback);
+            if (success) success(item->callback);
         }
         else
         {
-            fail(item->callback);
+            if (fail) fail(item->callback);
             somethingFailed = true;
         }
     }
