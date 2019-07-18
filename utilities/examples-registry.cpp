@@ -22,7 +22,7 @@ bool ExamplesRegistry::RunAll(
         }
     }
     return !somethingFailed;
-}
+    }
 
 void ExamplesRegistry::RegisterItem(Item* item)
 {

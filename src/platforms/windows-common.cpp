@@ -77,7 +77,6 @@ ExMM::IoSpace* ExMM::Platform::AllocateIoSpace(size_t size)
 
 void ExMM::Platform::RegisterHandlers()
 {
-    
 }
 
 
