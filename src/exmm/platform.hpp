@@ -1,6 +1,5 @@
 #ifndef _EXMM_PLATFORM_H_
 #define _EXMM_PLATFORM_H_
-#include <memory>
 
 namespace ExMM
 {
@@ -14,8 +13,8 @@ namespace ExMM
     class Platform
     {
     public:
-        IoSpace* AllocateIoSpace(size_t size);
-        void RegisterHandlers();
+        static IoSpace* AllocateIoSpace(size_t size);
+        static void RegisterHandlers();
     };
 }
 
