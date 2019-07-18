@@ -3,7 +3,7 @@
 
 int main(int, char**)
 {
-	const ExamplesRegistry::Callback failed = ExamplesRegistry::RunAll(std::cout);
+    const ExamplesRegistry::Callback failed = ExamplesRegistry::RunAll(std::cout);
     if (failed)
     {
         std::cerr << "Failed callback: " << failed << std::endl;

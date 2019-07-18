@@ -6,22 +6,22 @@
 class ExamplesRegistry
 {
 public:
-	typedef std::ostream Output;
+    typedef std::ostream Output;
 
-	typedef bool(*Callback)(Output& output);
+    typedef bool(*Callback)(Output& output);
 
-	class Item
-	{
-	public:
-		Item(Callback);
+    class Item
+    {
+    public:
+        Item(Callback);
         Item(const Item&) = delete;
     private:
-		friend class ExamplesRegistry;
-		Callback callback;
-		Item* next;
-	};
+        friend class ExamplesRegistry;
+        Callback callback;
+        Item* next;
+    };
 
-	static Callback RunAll(Output &output);
+    static Callback RunAll(Output &output);
 
     ExamplesRegistry() = delete;
     ExamplesRegistry(const ExamplesRegistry&) = delete;
@@ -31,10 +31,10 @@ public:
     void* operator=(ExamplesRegistry&&) = delete;
 
 private:
-	static Item* first;
-	static Item* last;
+    static Item* first;
+    static Item* last;
 
-	static void RegisterItem(Item* item);
+    static void RegisterItem(Item* item);
 };
 
 #define EXMM_DEMO(Function) \
