@@ -69,12 +69,13 @@ namespace ExMM
         template<size_t size = sizeof(RegisterSetType)>
         ControllerBase()
         {
-            ioSpace = reinterpret_cast<RegisterSetType*>(Registry::Add(this, sizeof(RegisterSetType)));
+            ioSpace = reinterpret_cast<RegisterSetType*>(Registry::Add(this, sizeof(RegisterSetType), HookType));
         }
 
+        template<typename = std::enable_if<std::is_same_v<RegisterSetType, void>>>
         explicit ControllerBase(size_t size)
         {
-            ioSpace = reinterpret_cast<RegisterSetType*>(Registry::Add(this, sizeof(RegisterSetType)));
+            ioSpace = Registry::Add(this, size, HookType);
         }
 
         void TriggerInterrupt(int vector)

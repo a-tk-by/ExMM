@@ -5,6 +5,8 @@
 
 namespace ExMM
 {
+    enum class HookTypes;
+
     class Registry
     {
     public:
@@ -14,7 +16,7 @@ namespace ExMM
         Registry& operator=(const Registry&) = delete;
 
         static void Remove(struct ControllerInterface* controller);
-        static void* Add(ControllerInterface* controller, size_t size);
+        static void* Add(ControllerInterface* controller, size_t size, HookTypes hookTypes);
     };
 }
 #endif

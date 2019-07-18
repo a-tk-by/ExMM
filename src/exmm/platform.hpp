@@ -3,6 +3,8 @@
 
 namespace ExMM
 {
+    enum class HookTypes;
+
     struct IoSpace
     {
         virtual void* GetPublicArea() = 0;
@@ -13,7 +15,7 @@ namespace ExMM
     class Platform
     {
     public:
-        static IoSpace* AllocateIoSpace(size_t size);
+        static IoSpace* AllocateIoSpace(size_t size, ExMM::HookTypes hookTypes);
         static void RegisterHandlers();
     };
 }

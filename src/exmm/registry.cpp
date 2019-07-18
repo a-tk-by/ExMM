@@ -4,16 +4,14 @@
 
 namespace ExMM
 {
-    static Platform& GetPlatform()
+    static void InitPlatform()
     {
-        static Platform platform;
         static bool initialized;
         if (!initialized)
         {
-            platform.RegisterHandlers();
+            Platform::RegisterHandlers();
             initialized = true;
         }
-        return platform;
     }
 
     static std::map<ControllerInterface*, IoSpace*> ioMap;
@@ -28,9 +26,10 @@ namespace ExMM
         }
     }
 
-    void* Registry::Add(ControllerInterface* controller, size_t size)
+    void* Registry::Add(ControllerInterface* controller, size_t size, ExMM::HookTypes hookTypes)
     {
-        IoSpace* ioSpace = GetPlatform().AllocateIoSpace(size);
+        InitPlatform();
+        IoSpace* ioSpace = Platform::AllocateIoSpace(size, hookTypes);
         ioMap.insert(std::make_pair(controller, ioSpace));
         return ioSpace->GetPublicArea();
     }
