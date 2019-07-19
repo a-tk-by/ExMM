@@ -2,7 +2,6 @@
 #define _EXMM_CONTROLLER_H_
 
 #include "registry.hpp"
-#include "platform.hpp"
 #include <functional>
 #include <map>
 #include <mutex>
@@ -49,7 +48,7 @@ namespace ExMM
 
         virtual ~ControllerBase()
         {
-            Registry::Remove(this);
+            ExMM::Registry::Remove(this);
         }
 
         void ConnectInterruptHandler(int vector, std::function<void()> callback)
@@ -67,13 +66,13 @@ namespace ExMM
         template<size_t size = sizeof(RegisterSetType)>
         ControllerBase()
         {
-            ioSpace = reinterpret_cast<RegisterSetType*>(Registry::Add(this, sizeof(RegisterSetType), HookType));
+            ioSpace = reinterpret_cast<RegisterSetType*>(ExMM::Registry::Add(this, sizeof(RegisterSetType), HookType));
         }
 
         template<typename = std::enable_if<std::is_same<RegisterSetType, void>::value>>
         explicit ControllerBase(size_t size)
         {
-            ioSpace = Registry::Add(this, size, HookType);
+            ioSpace = ExMM::Registry::Add(this, size, HookType);
         }
 
         void TriggerInterrupt(int vector)
