@@ -58,7 +58,7 @@ EXMM_DEMO(WriteOnlyHook)
     auto *registers = controller.GetIoSpace();
 
     int sum;
-    Run([&registers, &sum]()
+    ExMM::Run([&registers, &sum]()
     {
         registers->A = 42;
         registers->B = 123;
