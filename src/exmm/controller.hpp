@@ -1,10 +1,11 @@
 #ifndef _EXMM_CONTROLLER_H_
 #define _EXMM_CONTROLLER_H_
 
-#include "registry.hpp"
 #include <functional>
 #include <map>
 #include <mutex>
+
+#include "registry.hpp"
 
 namespace ExMM
 {

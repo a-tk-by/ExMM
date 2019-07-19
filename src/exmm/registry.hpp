@@ -1,11 +1,11 @@
 #ifndef _EXMM_REGISTRY_
 #define _EXMM_REGISTRY_
 
-#include "controller.hpp"
-
 namespace ExMM
 {
     enum class HookTypes;
+
+    struct ControllerInterface;
 
     class Registry
     {
