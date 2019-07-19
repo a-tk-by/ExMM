@@ -1,6 +1,6 @@
 #include "../utilities/examples-registry.hpp"
 #include <iostream>
-
+#include <thread>
 #include "../src/exmm.hpp"
 
 using namespace ExMM;
