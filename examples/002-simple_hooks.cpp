@@ -36,7 +36,7 @@ EXMM_DEMO(SimplePassiveHooks)
 {
     output << "Basic demo - simple passive hooks" << std::endl;
 
-    Controller002 controller;//(1);
+    Controller002 controller;
     auto *registers = controller.GetIoSpace();
 
     registers->A = 42;

@@ -30,8 +30,6 @@ namespace ExMM
         virtual HookTypes HookTypes() = 0;
     protected:
         ControllerInterface() = default;
-
-        static Platform& GetPlatform();
     };
 
     template<HookTypes HookType, typename RegisterSetType = void>

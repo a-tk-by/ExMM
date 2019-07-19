@@ -2,6 +2,7 @@
 #define _EXMM_REGISTRY_
 
 #include "controller.hpp"
+#include <basetsd.h>
 
 namespace ExMM
 {
@@ -17,6 +18,7 @@ namespace ExMM
 
         static void Remove(struct ControllerInterface* controller);
         static void* Add(ControllerInterface* controller, size_t size, HookTypes hookTypes);
+        static bool FindController(void* rawData, ControllerInterface*& controller, struct IoSpace*& ioSpace, size_t& offset);
     };
 }
 #endif
