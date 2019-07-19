@@ -60,7 +60,7 @@ private:
 
 #define EXMM_DEMO(Function) \
     static bool Function(ExamplesRegistry::Output&); \
-    static ExamplesRegistry::Item Demo_##Function = ExamplesRegistry::Callback(Function, #Function);\
+    static ExamplesRegistry::Item Demo_##Function(ExamplesRegistry::Callback(Function, #Function));\
     static bool Function(ExamplesRegistry::Output& output)
 
 #endif
