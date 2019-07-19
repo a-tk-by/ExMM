@@ -5,7 +5,7 @@
 
 using namespace ExMM;
 
-volatile struct Registers
+struct Registers
 {
     volatile int A;
     volatile int B;

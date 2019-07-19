@@ -5,7 +5,7 @@
 
 using namespace ExMM;
 
-volatile struct Registers
+struct Registers
 {
     volatile int A;
     volatile int B;
@@ -18,7 +18,7 @@ struct Controller001 final : public ControllerBase<HookTypes::None, Registers>
     {
         bool success = false;
 
-        ConnectInterruptHandler(0, [controller = this, &success]()
+        ConnectInterruptHandler(0, [&success]()
         {
             std::cout << "Interrupt triggered" << std::endl;
             success = true;
