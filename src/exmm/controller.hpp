@@ -4,6 +4,7 @@
 #include <functional>
 #include <map>
 #include <mutex>
+#include <cstddef>
 
 #include "registry.hpp"
 

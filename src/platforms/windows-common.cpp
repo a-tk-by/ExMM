@@ -4,6 +4,7 @@
 #include "../exmm/controller.hpp"
 
 #include <Windows.h>
+#include <cstddef>
 
 #include "windows-iospace.hpp"
 

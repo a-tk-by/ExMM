@@ -1,7 +1,10 @@
 #ifndef _EXMM_PLATFORM_H_
 #define _EXMM_PLATFORM_H_
-#include "controller.hpp"
+
 #include <functional>
+#include <cstddef>
+
+#include "controller.hpp"
 
 namespace ExMM
 {

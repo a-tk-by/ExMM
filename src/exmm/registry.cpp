@@ -1,5 +1,7 @@
 #include "registry.hpp"
 #include "platform.hpp"
+
+#include <cstddef>
 #include <map>
 
 namespace ExMM

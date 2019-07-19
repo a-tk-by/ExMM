@@ -1,6 +1,8 @@
 #ifndef _EXMM_REGISTRY_
 #define _EXMM_REGISTRY_
 
+#include <cstddef>
+
 namespace ExMM
 {
     enum class HookTypes;

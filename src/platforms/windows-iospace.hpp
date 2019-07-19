@@ -5,6 +5,7 @@
 
 #include "../exmm/platform.hpp"
 #include <Windows.h>
+#include <cstddef>
 
 namespace ExMM {
 namespace Windows {
