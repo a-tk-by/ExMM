@@ -57,11 +57,15 @@ EXMM_DEMO(WriteOnlyHook)
     Controller003Write controller;
     auto *registers = controller.GetIoSpace();
 
-    registers->A = 42;
-    registers->B = 123;
-    registers->C = -1;
+    int sum;
+    Run([&registers, &sum]()
+    {
+        registers->A = 42;
+        registers->B = 123;
+        registers->C = -1;
 
-    int sum = registers->A + registers->B + registers->C;
+        sum = registers->A + registers->B + registers->C;
+    });
 
 
     const auto notFoundRead = controller.readOffsets.end();
@@ -86,12 +90,16 @@ EXMM_DEMO(ReadOnlyHook)
     Controller003Read controller;
     auto *registers = controller.GetIoSpace();
 
-    registers->A = 42;
-    registers->B = 123;
-    registers->C = -1;
+    int sum;
 
-    int sum = registers->A + registers->B + registers->C;
+    ExMM::Run([&sum, &registers]()
+    {
+        registers->A = 42;
+        registers->B = 123;
+        registers->C = -1;
 
+        sum = registers->A + registers->B + registers->C;
+    });
 
     const auto notFoundRead = controller.readOffsets.end();
     const auto notFoundWrite = controller.writeOffsets.end();

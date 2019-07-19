@@ -22,7 +22,7 @@ bool ExamplesRegistry::RunAll(
         }
     }
     return !somethingFailed;
-    }
+}
 
 void ExamplesRegistry::RegisterItem(Item* item)
 {
@@ -37,11 +37,11 @@ void ExamplesRegistry::RegisterItem(Item* item)
     }
 }
 
-ExamplesRegistry::Callback::Callback(FunctionPointer function, const char* name): Function(function), Name(name)
+ExamplesRegistry::Callback::Callback(FunctionPointer function, const char* name) : Function(function), Name(name)
 {
 }
 
-ExamplesRegistry::Item::Item(Callback callback) 
+ExamplesRegistry::Item::Item(Callback callback)
     : callback(callback), next()
 {
     RegisterItem(this);

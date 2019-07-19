@@ -39,12 +39,16 @@ EXMM_DEMO(SimplePassiveHooks)
     Controller002 controller;
     auto *registers = controller.GetIoSpace();
 
-    registers->A = 42;
-    registers->B = 123;
-    registers->C = -1;
+    int sum;
 
-    int sum = registers->A + registers->B + registers->C;
+    ExMM::Run([&sum, &registers]()
+    {
+        registers->A = 42;
+        registers->B = 123;
+        registers->C = -1;
 
+        sum = registers->A + registers->B + registers->C;
+    });
 
     const auto notFoundRead = controller.readOffsets.end();
     const auto notFoundWrite = controller.writeOffsets.end();

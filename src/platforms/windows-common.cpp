@@ -190,5 +190,18 @@ void ExMM::Platform::UninstallBreakPoint(void* _context)
     }
 }
 
+void ExMM::Platform::Run(const std::function<void()>& function)
+{
+    if (!function) return;
+
+    __try
+    {
+        function();
+    }
+    __except (ExceptionHook(GetExceptionInformation()))
+    {
+    }
+}
+
 
 #endif

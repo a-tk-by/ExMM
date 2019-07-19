@@ -3,7 +3,7 @@
 
 int main(int, char**)
 {
-    return 
+    return
     ExamplesRegistry::RunAll(
         std::cout,
         [](auto& callback) {std::cout << "[" << callback.Name << "]" << std::endl; },
