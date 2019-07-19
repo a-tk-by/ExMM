@@ -2,7 +2,6 @@
 #define _EXMM_REGISTRY_
 
 #include "controller.hpp"
-#include <basetsd.h>
 
 namespace ExMM
 {
