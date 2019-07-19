@@ -74,7 +74,7 @@ static LONG WINAPI ExceptionHook(EXCEPTION_POINTERS* info)
 
         if (ExMM::Platform::GetBreakPoint(info->ContextRecord, ioSpace, controller, offset))
         {
-            if (controller && (controller->HookTypes() & ExMM::HookTypes::Write))
+            if (controller && (controller->GetHookTypes() & ExMM::HookTypes::Write))
             {
                 controller->DoHookWrite(ioSpace->GetPrivateArea(), offset);
             }

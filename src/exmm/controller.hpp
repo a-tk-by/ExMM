@@ -27,7 +27,7 @@ namespace ExMM
         virtual ~ControllerInterface() = default;
         virtual void DoHookRead(void* data, size_t offset) = 0;
         virtual void DoHookWrite(void* data, size_t offset) = 0;
-        virtual HookTypes HookTypes() = 0;
+        virtual HookTypes GetHookTypes() = 0;
     protected:
         ControllerInterface() = default;
     };
@@ -70,7 +70,7 @@ namespace ExMM
             ioSpace = reinterpret_cast<RegisterSetType*>(Registry::Add(this, sizeof(RegisterSetType), HookType));
         }
 
-        template<typename = std::enable_if<std::is_same_v<RegisterSetType, void>>>
+        template<typename = std::enable_if<std::is_same<RegisterSetType, void>::value>>
         explicit ControllerBase(size_t size)
         {
             ioSpace = Registry::Add(this, size, HookType);
@@ -89,7 +89,7 @@ namespace ExMM
         }
 
     private:
-        ExMM::HookTypes HookTypes() override
+        ExMM::HookTypes GetHookTypes() override
         {
             return HookType;
         }
