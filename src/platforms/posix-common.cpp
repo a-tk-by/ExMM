@@ -28,6 +28,7 @@ void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace
 bool ExMM::Platform::GetBreakPoint(void* _context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset)
 {
     //TODO
+    throw nullptr;
 }
 
 void ExMM::Platform::UninstallBreakPoint(void* _context)
