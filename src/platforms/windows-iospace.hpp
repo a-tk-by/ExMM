@@ -12,86 +12,13 @@ namespace Windows {
 
     struct IoSpace final : public ExMM::IoSpace
     {
-        IoSpace(size_t size, ExMM::HookTypes hookTypes) :
-            size(size),
-            hookTypes(hookTypes),
-            hMapping(INVALID_HANDLE_VALUE),
-            publicArea(nullptr),
-            privateArea(nullptr),
-            oldProtection()
-        {
-        }
+        IoSpace(size_t size, ExMM::HookTypes hookTypes);
 
         IoSpace(const IoSpace&) = delete;
 
-        ExMM::IoSpace* Initialize()
-        {
-            LARGE_INTEGER sizeCopy;
-            sizeCopy.QuadPart = size;
-            hMapping = CreateFileMapping(
-                INVALID_HANDLE_VALUE,
-                nullptr,
-                PAGE_READWRITE | SEC_COMMIT,
-                sizeCopy.HighPart, sizeCopy.LowPart,
-                nullptr
-            );
+        ExMM::IoSpace* Initialize();
 
-            if (hMapping == INVALID_HANDLE_VALUE)
-            {
-                throw std::runtime_error("Cannot create file mapping");
-            }
-
-            publicArea = MapViewOfFile(hMapping, FILE_MAP_ALL_ACCESS, 0, 0, size);
-            privateArea = MapViewOfFile(hMapping, FILE_MAP_ALL_ACCESS, 0, 0, size);
-
-            if (publicArea == nullptr || privateArea == nullptr)
-            {
-                throw std::runtime_error("Cannot map memory area");
-            }
-
-            DWORD newProtection;
-            switch (hookTypes)
-            {
-            case HookTypes::Read:
-                newProtection = PAGE_NOACCESS;
-                break;
-            case HookTypes::Write:
-                newProtection = PAGE_READONLY;
-                break;
-            case HookTypes::ReadWrite:
-                newProtection = PAGE_NOACCESS;
-                break;
-            default:
-                newProtection = PAGE_READWRITE;
-                break;
-            }
-
-            DWORD oldProtection;
-            if (!VirtualProtect(publicArea, size, newProtection, &oldProtection))
-            {
-                throw std::runtime_error("Cannot set memory area protection");
-            }
-
-            return this;
-        }
-
-        ~IoSpace()
-        {
-            if (publicArea != nullptr)
-            {
-                UnmapViewOfFile(publicArea);
-            }
-
-            if (privateArea != nullptr)
-            {
-                UnmapViewOfFile(privateArea);
-            }
-
-            if (hMapping != INVALID_HANDLE_VALUE)
-            {
-                CloseHandle(hMapping);
-            }
-        }
+        virtual ~IoSpace();
 
         size_t size;
         ExMM::HookTypes hookTypes;
@@ -100,41 +27,19 @@ namespace Windows {
 
         void* publicArea;
 
-        void* GetPublicArea() override
-        {
-            return publicArea;
-        }
+        void* GetPublicArea() override;
 
         void* privateArea;
 
-        void* GetPrivateArea() override
-        {
-            return privateArea;
-        }
+        void* GetPrivateArea() override;
 
-        size_t Size() const override
-        {
-            return size;
-        }
+        size_t Size() const override;
 
         DWORD oldProtection;
 
-        void Unprotect() override
-        {
-            if (!VirtualProtect(publicArea, size, PAGE_READWRITE, &oldProtection))
-            {
-                throw std::runtime_error("Cannot unprotect memory area");
-            }
-        }
+        void Unprotect() override;
 
-        void RestoreProtection() override
-        {
-            DWORD dummy;
-            if (!VirtualProtect(publicArea, size, oldProtection, &dummy))
-            {
-                throw std::runtime_error("Cannot restore protection of memory area");
-            }
-        }
+        void RestoreProtection() override;
     };
 }}
 
