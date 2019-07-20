@@ -21,7 +21,7 @@ ExMM::IoSpace* ExMM::Posix::IoSpace::Initialize()
     char buffer[] = "/tmp/exmm-XXXXXX";
     file = mkstemp(buffer);
     if (file < 0) throw std::runtime_error("Cannot create file for mapping");
-    
+
     if (ftruncate(file, size) < 0) throw std::runtime_error("Cannot set mapping file size");
 
     unlink(buffer);
@@ -29,8 +29,8 @@ ExMM::IoSpace* ExMM::Posix::IoSpace::Initialize()
     privateArea = mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, file, 0);
     if (errno) 
     {
-	privateArea = nullptr;
-	throw std::runtime_error(strerror(errno));
+        privateArea = nullptr;
+        throw std::runtime_error(strerror(errno));
     }
 
     int publicFlags = PROT_READ | PROT_WRITE;
@@ -39,8 +39,8 @@ ExMM::IoSpace* ExMM::Posix::IoSpace::Initialize()
     publicArea = mmap(nullptr, size, publicFlags, MAP_SHARED, file, 0);
     if (errno) 
     {
-	publicArea = nullptr;
-	throw std::runtime_error(strerror(errno));
+        publicArea = nullptr;
+        throw std::runtime_error(strerror(errno));
     }
 
     return this;
@@ -50,16 +50,16 @@ ExMM::Posix::IoSpace::~IoSpace()
 {
     if (publicArea != nullptr)
     {
-	munmap(publicArea, size);
+        munmap(publicArea, size);
     }
     if (privateArea != nullptr)
     {
-	munmap(privateArea, size);
+        munmap(privateArea, size);
     }
     if (file >= 0)
     {
-	close(file);
-	file = -1;
+        close(file);
+        file = -1;
     }
 }
 

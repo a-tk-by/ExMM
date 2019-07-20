@@ -11,7 +11,7 @@ namespace Posix {
 
         ExMM::IoSpace* Initialize();
 
-	virtual ~IoSpace();
+        virtual ~IoSpace();
 
         void* GetPublicArea() override;
         void* GetPrivateArea() override;
@@ -22,7 +22,7 @@ namespace Posix {
     private:
         HookTypes hookTypes;
         size_t size;
-	int file;
+        int file;
         void* privateArea;
         void* publicArea;
     };
