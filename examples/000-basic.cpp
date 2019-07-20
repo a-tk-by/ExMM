@@ -1,5 +1,4 @@
 #include "../utilities/examples-registry.hpp"
-#include <iostream>
 
 #include "../src/exmm.hpp"
 
@@ -23,7 +22,7 @@ EXMM_DEMO(Basic)
     const Controller000 controller;
     auto *registers = controller.GetIoSpace();
 
-    ExMM::Run([registers]() {        
+    ExMM::Run([registers]() {
         registers->A = 42;
     });
     return registers->A == 42;

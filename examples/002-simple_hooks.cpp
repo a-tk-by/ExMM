@@ -40,6 +40,9 @@ EXMM_DEMO(SimplePassiveHooks)
     Controller002 controller;
     auto *registers = controller.GetIoSpace();
 
+    output << registers << std::endl;
+    std::getchar();
+
     int sum;
 
     ExMM::Run([&sum, &registers]()
