@@ -25,6 +25,7 @@ namespace Posix {
         int file;
         void* privateArea;
         void* publicArea;
+        int oldProtection;
     };
 
 }}

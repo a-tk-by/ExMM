@@ -12,7 +12,8 @@
 
 ExMM::Posix::IoSpace::IoSpace(size_t size, HookTypes hookTypes) 
     : hookTypes(hookTypes), size(size),
-      file(-1), privateArea(), publicArea()
+      file(-1), privateArea(), publicArea(),
+      oldProtection()
 {
 }
 
@@ -34,14 +35,27 @@ ExMM::IoSpace* ExMM::Posix::IoSpace::Initialize()
     }
 
     int publicFlags = PROT_READ | PROT_WRITE;
-    if (hookTypes & HookTypes::Read) publicFlags &=~ PROT_READ;
-    if (hookTypes & HookTypes::Write) publicFlags &=~ PROT_WRITE;
+    switch (hookTypes)
+    {
+        case HookTypes::None:
+            publicFlags = PROT_READ | PROT_WRITE;
+            break;
+        case HookTypes::Write:
+            publicFlags = PROT_READ;
+            break;
+        case HookTypes::Read:
+        case HookTypes::ReadWrite:
+            publicFlags = 0;
+            break;
+    }
+
     publicArea = mmap(nullptr, size, publicFlags, MAP_SHARED, file, 0);
     if (errno) 
     {
         publicArea = nullptr;
         throw std::runtime_error(strerror(errno));
     }
+    oldProtection = publicFlags;
 
     return this;
 }
@@ -81,13 +95,12 @@ size_t ExMM::Posix::IoSpace::Size() const
 
 void ExMM::Posix::IoSpace::Unprotect()
 {
-    //TODO
+    mprotect(publicArea, size, PROT_READ | PROT_WRITE);
 }
 
 void ExMM::Posix::IoSpace::RestoreProtection()
 {
-    //TODO
+    mprotect(publicArea, size, oldProtection);
 }
-
 
 #endif
