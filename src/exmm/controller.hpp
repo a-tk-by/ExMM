@@ -8,31 +8,11 @@
 
 #include "registry.hpp"
 
+#include "hooktypes.hpp"
+#include "controllerinterface.hpp"
+
 namespace ExMM
 {
-    enum class HookTypes
-    {
-        None,
-        Read = 1,
-        Write = 2,
-        ReadWrite = Read | Write
-    };
-
-    constexpr bool operator& (HookTypes lhs, HookTypes rhs)
-    {
-        return !!(static_cast<int>(lhs) & static_cast<int>(rhs));
-    }
-
-    struct ControllerInterface
-    {
-        virtual ~ControllerInterface() = default;
-        virtual void DoHookRead(void* data, size_t offset) = 0;
-        virtual void DoHookWrite(void* data, size_t offset) = 0;
-        virtual HookTypes GetHookTypes() = 0;
-    protected:
-        ControllerInterface() = default;
-    };
-
     template<HookTypes HookType, typename RegisterSetType = void>
     class ControllerBase : ControllerInterface
     {
@@ -50,7 +30,7 @@ namespace ExMM
 
         virtual ~ControllerBase()
         {
-            ExMM::Registry::Remove(this);
+            Registry::Remove(this);
         }
 
         void ConnectInterruptHandler(int vector, std::function<void()> callback)
@@ -68,13 +48,13 @@ namespace ExMM
         template<size_t size = sizeof(RegisterSetType)>
         ControllerBase()
         {
-            ioSpace = reinterpret_cast<RegisterSetType*>(ExMM::Registry::Add(this, sizeof(RegisterSetType), HookType));
+            ioSpace = reinterpret_cast<RegisterSetType*>(Registry::Add(this, sizeof(RegisterSetType), HookType));
         }
 
         template<typename = std::enable_if<std::is_same<RegisterSetType, void>::value>>
         explicit ControllerBase(size_t size)
         {
-            ioSpace = ExMM::Registry::Add(this, size, HookType);
+            ioSpace = Registry::Add(this, size, HookType);
         }
 
         void TriggerInterrupt(int vector)
@@ -90,7 +70,7 @@ namespace ExMM
         }
 
     private:
-        ExMM::HookTypes GetHookTypes() override
+        HookTypes GetHookTypes() override
         {
             return HookType;
         }

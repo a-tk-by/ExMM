@@ -2,13 +2,11 @@
 #define _EXMM_REGISTRY_
 
 #include <cstddef>
+#include "hooktypes.hpp"
+#include "controllerinterface.hpp"
 
 namespace ExMM
 {
-    enum class HookTypes;
-
-    struct ControllerInterface;
-
     class Registry
     {
     public:

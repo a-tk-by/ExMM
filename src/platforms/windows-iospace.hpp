@@ -10,36 +10,33 @@
 namespace ExMM {
 namespace Windows {
 
-    struct IoSpace final : public ExMM::IoSpace
+    class IoSpace final : public ExMM::IoSpace
     {
+    public:
         IoSpace(size_t size, ExMM::HookTypes hookTypes);
 
         IoSpace(const IoSpace&) = delete;
 
         ExMM::IoSpace* Initialize();
 
-        virtual ~IoSpace();
-
-        size_t size;
-        ExMM::HookTypes hookTypes;
-
-        HANDLE hMapping;
-
-        void* publicArea;
-
         void* GetPublicArea() override;
-
-        void* privateArea;
 
         void* GetPrivateArea() override;
 
         size_t Size() const override;
 
-        DWORD oldProtection;
-
         void Unprotect() override;
 
         void RestoreProtection() override;
+
+        virtual ~IoSpace();
+    private:
+        size_t size;
+        ExMM::HookTypes hookTypes;
+        HANDLE hMapping;
+        void* publicArea;
+        void* privateArea;
+        DWORD oldProtection;
     };
 }}
 

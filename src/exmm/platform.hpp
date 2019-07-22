@@ -8,8 +8,6 @@
 
 namespace ExMM
 {
-    enum class HookTypes;
-
     struct IoSpace
     {
         virtual void* GetPublicArea() = 0;

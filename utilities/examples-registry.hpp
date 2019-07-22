@@ -22,8 +22,6 @@ public:
         {
             return Function != nullptr;
         }
-
-        static Callback Empty;
     };
 
     class Item
