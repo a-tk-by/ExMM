@@ -23,6 +23,9 @@ namespace ExMM
         virtual void HookWrite(RegisterSetType* data, size_t offset)
         {}
 
+        virtual void Initialize(RegisterSetType* data)
+        {}
+
         RegisterSetType* GetIoSpace() const
         {
             return ioSpace;
@@ -85,6 +88,11 @@ namespace ExMM
         {
             std::lock_guard<std::mutex> guard(interruptsMutex);
             HookRead(reinterpret_cast<RegisterSetType*>(data), offset);
+        }
+
+        void DoInitialize(void* data) override
+        {
+            Initialize(reinterpret_cast<RegisterSetType*>(data));
         }
 
         RegisterSetType* ioSpace;
