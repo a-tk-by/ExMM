@@ -4,10 +4,10 @@
 #include "../exmm/platform.hpp"
 #include "posix-iospace.hpp"
 #include "posix-common.hpp"
+#include "common.hpp"
+
 #include <signal.h>
 #include <stdexcept>
-#include <sys/ptrace.h>
-#include <sys/user.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
@@ -47,8 +47,6 @@ static struct sigaction oldAccessHandler;
 
 static void AccessViolationHandler(int sig, siginfo_t* info, void* context)
 {
-    printf("SigSegv handler\n");
-
     ExMM::ControllerInterface* controller;
     size_t offset;
     ExMM::IoSpace* ioSpace;
@@ -61,14 +59,12 @@ static void AccessViolationHandler(int sig, siginfo_t* info, void* context)
 
     if (ExMM::Posix::IsMemoryWriteAccess(context))
     {
-        printf("Write access\n");
         ioSpace->Unprotect();
         ExMM::Platform::InstallBreakPoint(context, ExMM::Posix::GetInstructionAddress(context), ioSpace, controller, offset);
         return;
     }
     else
     {
-        printf("Read access\n");
         controller->DoHookRead(ioSpace->GetPrivateArea(), offset);
         ioSpace->Unprotect();
         ExMM::Platform::InstallBreakPoint(context, ExMM::Posix::GetInstructionAddress(context), ioSpace);
@@ -76,11 +72,22 @@ static void AccessViolationHandler(int sig, siginfo_t* info, void* context)
     }
 }
 
-static struct sigaction oldTracePointHandler;
 static void TracePointHandler(int sig, siginfo_t* info, void* context)
 {
-    printf("SigTrap handler\n");
-    CallOldHandler(oldTracePointHandler, sig, info, context, false);
+    ExMM::IoSpace* ioSpace;
+    ExMM::ControllerInterface* controller;
+    size_t offset;
+
+    if (ExMM::Platform::GetBreakPoint(context, ioSpace, controller, offset))
+    {
+        if (controller && (controller->GetHookTypes() & ExMM::HookTypes::Write))
+        {
+            controller->DoHookWrite(ioSpace->GetPrivateArea(), offset);
+        }
+
+        ExMM::Platform::UninstallBreakPoint(context);
+        ioSpace->RestoreProtection();
+    }
 }
 
 
@@ -98,56 +105,44 @@ void ExMM::Platform::RegisterHandlers()
     tp_action.sa_sigaction = TracePointHandler;
     tp_action.sa_flags = SA_SIGINFO;
     struct sigaction tp_old;
-    if (sigaction(SIGTRAP, &tp_action, &oldTracePointHandler) < 0)
+    if (sigaction(SIGTRAP, &tp_action, &tp_old) < 0)
     {
         throw std::runtime_error("Cannot register SIGTRAP handler");
     }
-
-
-    printf("Hello world\n");
-    getchar();
-
 }
+
+thread_local static BreakPointData breakPointData;
 
 void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace* ioSpace)
 {
-    printf("Install breakpoint\n");
-    getchar();
-    ptrace(PTRACE_POKEUSER, getpid(), offsetof(struct user, u_debugreg[0]), instruction);
-    if (errno)
-    {
-        throw std::runtime_error(strerror(errno));
-    }
-    printf("Install breakpoint done\n");
-    getchar();
-    exit(1);
-    //TODO
+    breakPointData.Set(ioSpace);
+    reinterpret_cast<ucontext_t*>(context)->uc_mcontext.gregs[REG_EFL] |= 0x100;
 }
 
 void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace* ioSpace, ControllerInterface* controller,
     size_t offset)
 {
-    printf("Install breakpoint\n");
-    getchar();
-    ptrace(PTRACE_POKEUSER, getpid(), offsetof(struct user, u_debugreg[0]), instruction);
-    if (errno)
+    breakPointData.Set(ioSpace, controller, offset);
+    reinterpret_cast<ucontext_t*>(context)->uc_mcontext.gregs[REG_EFL] |= 0x100;
+}
+
+bool ExMM::Platform::GetBreakPoint(void* context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset)
+{
+    (void)context;
+    if (breakPointData.Active)
     {
-        throw std::runtime_error(strerror(errno));
+        ioSpace = breakPointData.IoSpace;
+        controller = breakPointData.Controller;
+        offset = breakPointData.Offset;
+        return true;
     }
-    printf("Install breakpoint done\n");
-    getchar();
-    exit(1);    //TODO
+    return false;
 }
 
-bool ExMM::Platform::GetBreakPoint(void* _context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset)
+void ExMM::Platform::UninstallBreakPoint(void* context)
 {
-    //TODO
-    throw nullptr;
-}
-
-void ExMM::Platform::UninstallBreakPoint(void* _context)
-{
-    //TODO
+    breakPointData.Unset();
+    reinterpret_cast<ucontext_t*>(context)->uc_mcontext.gregs[REG_EFL] &=~ 0x100;
 }
 
 void ExMM::Platform::Run(const std::function<void()>& function)
