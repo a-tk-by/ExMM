@@ -77,11 +77,13 @@ namespace ExMM
 
         void DoHookWrite(void* data, size_t offset) override
         {
+            std::lock_guard<std::mutex> guard(interruptsMutex);
             HookWrite(reinterpret_cast<RegisterSetType*>(data), offset);
         }
 
         void DoHookRead(void* data, size_t offset) override
         {
+            std::lock_guard<std::mutex> guard(interruptsMutex);
             HookRead(reinterpret_cast<RegisterSetType*>(data), offset);
         }
 
