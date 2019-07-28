@@ -1,6 +1,8 @@
 #ifndef _CONTROLLER_INTERFACE_H_
 #define _CONTROLLER_INTERFACE_H_
 
+#include "hooktypes.hpp"
+
 namespace ExMM
 {
     struct ControllerInterface
@@ -11,6 +13,10 @@ namespace ExMM
         virtual HookTypes GetHookTypes() = 0;
     protected:
         ControllerInterface() = default;
+        ControllerInterface(const ControllerInterface&) = default;
+        ControllerInterface(ControllerInterface&&) = default;
+        ControllerInterface& operator=(const ControllerInterface&) = default;
+        ControllerInterface& operator=(ControllerInterface&&) = default;
     };
 
 }

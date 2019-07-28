@@ -1,5 +1,6 @@
 #ifdef _WIN32
 
+
 #include "../exmm/platform.hpp"
 #include "../exmm/controller.hpp"
 
@@ -7,17 +8,9 @@
 #include <cstddef>
 
 #include "windows-iospace.hpp"
+#include "common.hpp"
 
-// diStorm3 library is used to parse instructions stream
-// https://github.com/gdabah/distorm
-// It is mounted as submodule
-#include "../../external/distorm/include/distorm.h"
-
-#ifdef _WIN64
-#define DISTORM_DECODE_TYPE Decode64Bits
-#else
-#define DISTORM_DECODE_TYPE Decode32Bits
-#endif
+static const DWORD TRAP_FLAG_MASK = 0x100;
 
 ExMM::IoSpace* ExMM::Platform::AllocateIoSpace(size_t size, ExMM::HookTypes hookTypes)
 {
@@ -98,54 +91,18 @@ static LONG WINAPI ExceptionHook(EXCEPTION_POINTERS* info)
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
-const unsigned ExMMBreakPointSignature = 'ExMM';
-
-struct BreakPointData
-{
-    ExMM::IoSpace* IoSpace;
-    ExMM::ControllerInterface* Controller;
-    size_t Offset;
-    bool Active;
-
-    BreakPointData() : IoSpace(), Controller(), Offset(), Active(false)
-    {}
-
-    void Set(ExMM::IoSpace* ioSpace)
-    {
-        IoSpace = ioSpace;
-        Controller = nullptr;
-        Offset = 0;
-        Active = true;
-    }
-
-    void Set(ExMM::IoSpace* ioSpace, ExMM::ControllerInterface* controller, size_t offset)
-    {
-        IoSpace = ioSpace;
-        Controller = controller;
-        Offset = offset;
-        Active = true;
-    }
-
-    void Unset()
-    {
-        IoSpace = nullptr;
-        Controller = nullptr;
-        Offset = 0;
-        Active = false;
-    }
-};
 
 thread_local static BreakPointData breakPointData;
 
-static void InstallBreakPoint(void* _context)
+static void InstallBreakPoint(void* context)
 {
-    PCONTEXT context = reinterpret_cast<PCONTEXT>(_context);
-    context->EFlags |= 0x100; // Enable Trap Flag (TF) in EFlags register
+    reinterpret_cast<PCONTEXT>(context)->EFlags |= TRAP_FLAG_MASK; // Enable Trap Flag (TF) in EFlags register
 }
 
 
 void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace* ioSpace)
 {
+    (void)instruction;
     breakPointData.Set(ioSpace);
     ::InstallBreakPoint(context);
 }
@@ -153,12 +110,14 @@ void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace
 void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace* ioSpace, ControllerInterface* controller,
     size_t offset)
 {
+    (void)instruction;
     breakPointData.Set(ioSpace, controller, offset);
     ::InstallBreakPoint(context);
 }
 
-bool ExMM::Platform::GetBreakPoint(void* _context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset)
+bool ExMM::Platform::GetBreakPoint(void* context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset)
 {
+    (void)context;
     if (::breakPointData.Active)
     {
         ioSpace = breakPointData.IoSpace;
@@ -169,10 +128,9 @@ bool ExMM::Platform::GetBreakPoint(void* _context, IoSpace*& ioSpace, Controller
     return false;
 }
 
-void ExMM::Platform::UninstallBreakPoint(void* _context)
+void ExMM::Platform::UninstallBreakPoint(void* context)
 {
-    PCONTEXT context = reinterpret_cast<PCONTEXT>(_context);
-    context->EFlags &= ~0x100;
+    reinterpret_cast<PCONTEXT>(context)->EFlags &= ~ TRAP_FLAG_MASK;
     breakPointData.Unset();
 }
 

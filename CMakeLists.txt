@@ -8,15 +8,10 @@ set (CMAKE_CXX_STANDARD 11)
 
 set(OUTPUT_DIR ${CMAKE_BINARY_DIR}/CMakeOut/bin/ CACHE PATH "Path for output binary") 
 
-file(GLOB_RECURSE DISTORM_SOURCE  ./external/distorm/src/*.c)
-file(GLOB_RECURSE DISTORM_HEADERS  ./external/distorm/src/*.h)
-add_library("diStorm3" STATIC ${DISTORM_HEADERS} ${DISTORM_SOURCE})
-
 file(GLOB_RECURSE SOURCE ./src/*.cpp)
 file(GLOB_RECURSE HEADERS ./src/*.hpp)
 
 add_library(${PROJECT_NAME} STATIC ${HEADERS} ${SOURCE})
-target_link_libraries(${PROJECT_NAME} "diStorm3")
 
 file(GLOB_RECURSE UTILITIES_SOURCE ./utilities/*.cpp)
 file(GLOB_RECURSE UTILITIES_HEADERS ./utilities/*.hpp)
