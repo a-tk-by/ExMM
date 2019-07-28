@@ -21,11 +21,17 @@ struct Controller004 final : public ControllerBase<HookTypes::Read, Registers>
     void HookRead(Registers* data, size_t offset) override
     {
         std::cout << "Before read at offset " << std::hex << offset << std::endl;
-        if (offset == 0)
+        
+        Field(data, offset)
+        .Match<volatile int>(&Registers::A, [](auto& f)
         {
-            data->A++;
-            std::cout << "Register A was incremented" << std::endl;
-        }
+            ++f;
+            std::cout << "Field A incremented" << std::endl;
+        })
+        .Else([]()
+        {
+            std::cout << "Non-observed field" << std::endl;
+        });
     }
 };
 

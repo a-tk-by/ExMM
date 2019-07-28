@@ -17,6 +17,52 @@ namespace ExMM
     class ControllerBase : ControllerInterface
     {
     public:
+
+        struct FieldHelper
+        {
+            FieldHelper(RegisterSetType* registers, size_t offset)
+                : registers(registers), offset(offset), somethingCalled(false)
+            {}
+
+            template<class F>
+            FieldHelper& Match(F RegisterSetType::* field, const std::function<void(F&)>& callback)
+            {
+                const RegisterSetType* x = nullptr;
+                const auto* ptr = &(x->*field);
+                if (reinterpret_cast<size_t>(ptr) == offset)
+                {
+                    if (callback)
+                    {
+                        somethingCalled = true;
+                        callback(registers->*field);
+                    }
+                }
+                return *this;
+            }
+
+            void Else(std::function<void()> callback)
+            {
+                if (!somethingCalled)
+                {
+                    callback();
+                }
+            }
+
+
+
+
+        private:
+            RegisterSetType* registers;
+            size_t offset;
+
+            bool somethingCalled;
+        };
+
+        FieldHelper Field(RegisterSetType* data, size_t offset)
+        {
+            return FieldHelper(data, offset);
+        }
+
         virtual void HookRead(RegisterSetType* data, size_t offset)
         {}
 
@@ -96,7 +142,7 @@ namespace ExMM
         }
 
         RegisterSetType* ioSpace;
-        
+
         std::mutex interruptEntranceMutex;
         std::map<int, std::function<void()>> interrupts;
         std::mutex interruptsMutex;
