@@ -105,90 +105,75 @@ struct BreakPointData
     ExMM::IoSpace* IoSpace;
     ExMM::ControllerInterface* Controller;
     size_t Offset;
+    bool Active;
 
-    BreakPointData(ExMM::IoSpace* ioSpace)
-        : IoSpace(ioSpace), Controller(), Offset()
+    BreakPointData() : IoSpace(), Controller(), Offset(), Active(false)
     {}
 
-    BreakPointData(ExMM::IoSpace* ioSpace, ExMM::ControllerInterface* controller, size_t offset)
-        : IoSpace(ioSpace), Controller(controller), Offset(offset)
-    {}
+    void Set(ExMM::IoSpace* ioSpace)
+    {
+        IoSpace = ioSpace;
+        Controller = nullptr;
+        Offset = 0;
+        Active = true;
+    }
+
+    void Set(ExMM::IoSpace* ioSpace, ExMM::ControllerInterface* controller, size_t offset)
+    {
+        IoSpace = ioSpace;
+        Controller = controller;
+        Offset = offset;
+        Active = true;
+    }
+
+    void Unset()
+    {
+        IoSpace = nullptr;
+        Controller = nullptr;
+        Offset = 0;
+        Active = false;
+    }
 };
 
-void* SearchNextInstruction(void* _instruction)
-{
-    _DecodedInst instructions[2];
-    unsigned used;
-    auto instruction = static_cast<unsigned char*>(_instruction);
+thread_local static BreakPointData breakPointData;
 
-    distorm_decode(0, instruction, 16,  DISTORM_DECODE_TYPE, instructions, 2, &used);
-    return instruction + instructions[0].size;
-}
-
-static void InstallBreakPoint(void* _context, void* instruction, BreakPointData* breakPointData)
+static void InstallBreakPoint(void* _context)
 {
     PCONTEXT context = reinterpret_cast<PCONTEXT>(_context);
-
-    void* target = SearchNextInstruction(instruction);
-
-    *reinterpret_cast<void**>(&context->Dr0) = target;
-    *reinterpret_cast<void**>(&context->Dr1) = breakPointData;
-    context->Dr2 = ExMMBreakPointSignature;
-
-    context->Dr6 = 0;
-    // Local Dr0 breakpoint is active (bits 0..1)
-    // See https://en.wikipedia.org/wiki/X86_debug_register
-    context->Dr7 = 1;
+    context->EFlags |= 0x100; // Enable Trap Flag (TF) in EFlags register
 }
 
 
 void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace* ioSpace)
 {
-    ::InstallBreakPoint(context, instruction, new BreakPointData(ioSpace));
+    breakPointData.Set(ioSpace);
+    ::InstallBreakPoint(context);
 }
 
 void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace* ioSpace, ControllerInterface* controller,
     size_t offset)
 {
-    ::InstallBreakPoint(context, instruction, new BreakPointData(ioSpace, controller, offset));
+    breakPointData.Set(ioSpace, controller, offset);
+    ::InstallBreakPoint(context);
 }
 
 bool ExMM::Platform::GetBreakPoint(void* _context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset)
 {
-    PCONTEXT context = reinterpret_cast<PCONTEXT>(_context);
-
-    if (context->Dr2 == ExMMBreakPointSignature)
+    if (::breakPointData.Active)
     {
-        BreakPointData* data = reinterpret_cast<BreakPointData*>(context->Dr1);
-        if (data)
-        {
-            ioSpace = data->IoSpace;
-            controller = data->Controller;
-            offset = data->Offset;
-            return true;
-        }
+        ioSpace = breakPointData.IoSpace;
+        controller = breakPointData.Controller;
+        offset = breakPointData.Offset;
+        return true;
     }
-
     return false;
 }
 
 void ExMM::Platform::UninstallBreakPoint(void* _context)
 {
-    const PCONTEXT context = reinterpret_cast<PCONTEXT>(_context);
-
-    if (context->Dr2 == ExMMBreakPointSignature)
-    {
-        BreakPointData* data = reinterpret_cast<BreakPointData*>(context->Dr1);
-        delete data;
-
-        context->Dr7 = 0;
-        context->Dr6 = 0;
-
-        context->Dr0 = 0;
-        context->Dr1 = 0;
-        context->Dr2 = 0;
-        context->Dr3 = 0;
-    }
+    PCONTEXT context = reinterpret_cast<PCONTEXT>(_context);
+    context->EFlags &= ~0x100;
+    breakPointData.Unset();
 }
 
 void ExMM::Platform::Run(const std::function<void()>& function)

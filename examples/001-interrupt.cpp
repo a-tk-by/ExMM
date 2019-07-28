@@ -24,10 +24,10 @@ struct Controller001 final : public ControllerBase<HookTypes::None, Registers>
             success = true;
         });
 
-        std::thread([controller = this]()
+        std::thread([&]()
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            controller->TriggerInterrupt(0);
+            TriggerInterrupt(0);
         }).join();
 
         return success;

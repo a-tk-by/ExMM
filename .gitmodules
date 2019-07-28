@@ -1,3 +1,0 @@
-[submodule "external/distorm"]
-	path = external/distorm
-	url = git@github.com:gdabah/distorm.git
