@@ -23,7 +23,7 @@ struct Controller004 final : public ControllerBase<HookTypes::Read, Registers>
         std::cout << "Before read at offset " << std::hex << offset << std::endl;
         
         Field(data, offset)
-        .Match<volatile int>(&Registers::A, [](auto& f)
+        .Match<volatile int>(&Registers::A, [](volatile int& f)
         {
             ++f;
             std::cout << "Field A incremented" << std::endl;
