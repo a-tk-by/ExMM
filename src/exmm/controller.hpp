@@ -20,12 +20,12 @@ namespace ExMM
 
         struct FieldHelper
         {
-            FieldHelper(RegisterSetType* registers, size_t offset)
-                : registers(registers), offset(offset), somethingCalled(false)
+            FieldHelper(volatile RegisterSetType* registers, size_t offset)
+                : registers(registers), offset(offset), somethingMatched(false)
             {}
 
             template<class F>
-            FieldHelper& Match(F RegisterSetType::* field, const std::function<void(F&)>& callback)
+            FieldHelper& Case(volatile F RegisterSetType::* field, const std::function<void(volatile F&)>& callback)
             {
                 const RegisterSetType* x = nullptr;
                 const auto* ptr = &(x->*field);
@@ -33,32 +33,51 @@ namespace ExMM
                 {
                     if (callback)
                     {
-                        somethingCalled = true;
                         callback(registers->*field);
                     }
+                    somethingMatched = true;
                 }
                 return *this;
             }
 
-            void Else(std::function<void()> callback)
+            template<class F>
+            FieldHelper& Case(volatile F RegisterSetType::* field, const std::function<void(volatile RegisterSetType*, volatile F&)>& callback)
+            {                
+                if (SameField(field, offset))
+                {
+                    if (callback)
+                    {
+                        callback(registers, registers->*field);
+                    }
+                    somethingMatched = true;
+                }
+                return *this;
+            }
+
+            void Else(std::function<void()> callback) const
             {
-                if (!somethingCalled)
+                if (!somethingMatched)
                 {
                     callback();
                 }
             }
 
-
-
-
         private:
-            RegisterSetType* registers;
+            volatile RegisterSetType* registers;
             size_t offset;
 
-            bool somethingCalled;
+            bool somethingMatched;
+
+            template<class F>
+            static bool SameField(volatile F RegisterSetType::* field, size_t offset)
+            {
+                const RegisterSetType* x = nullptr;
+                const auto* ptr = &(x->*field);
+                return reinterpret_cast<size_t>(ptr) == offset;
+            }
         };
 
-        FieldHelper Field(RegisterSetType* data, size_t offset)
+        FieldHelper SwitchField(RegisterSetType* data, size_t offset)
         {
             return FieldHelper(data, offset);
         }
@@ -72,7 +91,7 @@ namespace ExMM
         virtual void Initialize(RegisterSetType* data)
         {}
 
-        RegisterSetType* GetIoSpace() const
+        volatile RegisterSetType* GetIoSpace() const
         {
             return ioSpace;
         }

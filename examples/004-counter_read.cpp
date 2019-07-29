@@ -22,11 +22,16 @@ struct Controller004 final : public ControllerBase<HookTypes::Read, Registers>
     {
         std::cout << "Before read at offset " << std::hex << offset << std::endl;
         
-        Field(data, offset)
-        .Match<volatile int>(&Registers::A, [](volatile int& f)
+        SwitchField(data, offset)
+        .Case<int>(&Registers::A, [](volatile int& a)
         {
-            ++f;
+            a += 1;
             std::cout << "Field A incremented" << std::endl;
+        })
+        .Case<int>(&Registers::B, [](volatile Registers* all, volatile int& b)
+        {
+            b += all->C;
+            std::cout << "Field B increased by value of field C" << std::endl;
         })
         .Else([]()
         {
@@ -48,19 +53,36 @@ EXMM_DEMO(ReadAccessCounter)
     {
         int x = registers->A;
         values.push_back(x);
+
         x = registers->A;
         values.push_back(x);
+
         x = registers->A;
         values.push_back(x);
 
         x = registers->C;
         values.push_back(x);
+
+        registers->C = 5;
+        x = registers->B;
+        values.push_back(x);
+
+        registers->C = 12;
+        x = registers->B;
+        values.push_back(x);
+
+        registers->C = -3;
+        x = registers->B;
+        values.push_back(x);
     });
 
-    return values.size() == 4
+    return values.size() == 7
         && values[0] == 1
         && values[1] == 2
         && values[2] == 3
         && values[3] == 0
+        && values[4] == 5
+        && values[5] == 17
+        && values[6] == 14
         ;
 }
