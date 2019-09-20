@@ -28,9 +28,9 @@ struct Controller004 final : public ControllerBase<HookTypes::Read, Registers>
             a += 1;
             std::cout << "Field A incremented" << std::endl;
         })
-        .Case<int>(&Registers::B, [](volatile Registers* all, volatile int& b)
+        .Case<int>(&Registers::B, [data](volatile int& b)
         {
-            b += all->C;
+            b += data->C;
             std::cout << "Field B increased by value of field C" << std::endl;
         })
         .Else([](std::size_t offset)

@@ -39,37 +39,6 @@ namespace ExMM
             }
 
             template<class F>
-            FieldHelper& Case(volatile F Registers::* field, const std::function<void(volatile Registers*, volatile F&)>& callback)
-            {
-                if (SameField(offset, field))
-                {
-                    if (callback)
-                    {
-                        callback(registers, registers->*field);
-                    }
-                    somethingMatched = true;
-                }
-                return *this;
-            }
-
-            template<class F>
-            FieldHelper& Inside(volatile F Registers::* field, const std::function<void(volatile Registers*, FieldHelper<F>& next)>& callback)
-            {
-                size_t nestedOffset;
-                if (InsideField(offset, field, nestedOffset))
-                {
-                    if (callback)
-                    {
-                        volatile F* ptr = &(registers->*field);
-                        FieldHelper<F> next(ptr, nestedOffset);
-                        callback(registers, next);
-                    }
-                    somethingMatched = true;
-                }
-                return *this;
-            }
-
-            template<class F>
             FieldHelper& Inside(volatile F Registers::* field, const std::function<void(FieldHelper& next)>& callback)
             {
                 size_t nestedOffset;
@@ -87,7 +56,7 @@ namespace ExMM
             }
 
             template<class F, std::size_t N>
-            FieldHelper& Case(volatile F(Registers::* field)[N], const std::function<void(std::size_t index, volatile F&)>& callback)
+            FieldHelper& CaseArray(volatile F(Registers::* field)[N], const std::function<void(std::size_t index, volatile F&)>& callback)
             {
                 std::size_t index;
                 if (SameField(offset, field, index))
@@ -102,22 +71,7 @@ namespace ExMM
             }
 
             template<class F, std::size_t N>
-            FieldHelper& Case(volatile F Registers::* field, const std::function<void(volatile Registers*, std::size_t index, volatile F&)>& callback)
-            {
-                std::size_t index;
-                if (SameField(offset, field, index))
-                {
-                    if (callback)
-                    {
-                        callback(registers, index, (registers->*field)[index]);
-                    }
-                    somethingMatched = true;
-                }
-                return *this;
-            }
-
-            template<class F, std::size_t N>
-            FieldHelper& Inside(volatile F(Registers::* field)[N], const std::function<void(std::size_t index, FieldHelper<F>& next)>& callback)
+            FieldHelper& InsideArray(volatile F(Registers::* field)[N], const std::function<void(std::size_t index, FieldHelper<F>& next)>& callback)
             {
                 std::size_t index;
                 size_t nestedOffset;
@@ -129,25 +83,6 @@ namespace ExMM
                         volatile F* ptr = &(registers->*field)[index];
                         FieldHelper<F> next = FieldHelper<F>(ptr, nestedOffset);
                         callback(index, next);
-                    }
-                    somethingMatched = true;
-                }
-                return *this;
-            }
-
-            template<class F, std::size_t N>
-            FieldHelper& Inside(volatile F (Registers::* field)[N], const std::function<void(volatile Registers*, std::size_t index, FieldHelper& next)>& callback)
-            {
-                std::size_t index;
-                size_t nestedOffset;
-
-                if (InsideField(offset, field, index, nestedOffset))
-                {
-                    if (callback)
-                    {
-                        volatile F* ptr = &(registers->*field);
-                        FieldHelper<F> next = FieldHelper<F>(ptr, nestedOffset);
-                        callback(registers, index, next);
                     }
                     somethingMatched = true;
                 }
