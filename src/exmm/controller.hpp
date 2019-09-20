@@ -17,16 +17,17 @@ namespace ExMM
     {
     public:
 
+        template<class Registers>
         struct FieldHelper
         {
-            FieldHelper(volatile RegisterSetType* registers, size_t offset)
+            FieldHelper(volatile Registers* registers, size_t offset)
                 : registers(registers), offset(offset), somethingMatched(false)
             {}
 
             template<class F>
-            FieldHelper& Case(volatile F RegisterSetType::* field, const std::function<void(volatile F&)>& callback)
+            FieldHelper& Case(volatile F Registers::* field, const std::function<void(volatile F&)>& callback)
             {
-                if (SameField(field, offset))
+                if (SameField(offset, field))
                 {
                     if (callback)
                     {
@@ -38,9 +39,9 @@ namespace ExMM
             }
 
             template<class F>
-            FieldHelper& Case(volatile F RegisterSetType::* field, const std::function<void(volatile RegisterSetType*, volatile F&)>& callback)
+            FieldHelper& Case(volatile F Registers::* field, const std::function<void(volatile Registers*, volatile F&)>& callback)
             {
-                if (SameField(field, offset))
+                if (SameField(offset, field))
                 {
                     if (callback)
                     {
@@ -51,11 +52,45 @@ namespace ExMM
                 return *this;
             }
 
+            template<class F>
+            FieldHelper& Inside(volatile F Registers::* field, const std::function<void(volatile Registers*, FieldHelper<F>& next)>& callback)
+            {
+                size_t nestedOffset;
+                if (InsideField(offset, field, nestedOffset))
+                {
+                    if (callback)
+                    {
+                        volatile F* ptr = &(registers->*field);
+                        FieldHelper<F> next(ptr, nestedOffset);
+                        callback(registers, next);
+                    }
+                    somethingMatched = true;
+                }
+                return *this;
+            }
+
+            template<class F>
+            FieldHelper& Inside(volatile F Registers::* field, const std::function<void(FieldHelper& next)>& callback)
+            {
+                size_t nestedOffset;
+                if (InsideField(offset, field, nestedOffset))
+                {
+                    if (callback)
+                    {
+                        volatile F* ptr = &(registers->*field);
+                        FieldHelper<F> next(ptr, nestedOffset);
+                        callback(next);
+                    }
+                    somethingMatched = true;
+                }
+                return *this;
+            }
+
             template<class F, std::size_t N>
-            FieldHelper& Case(volatile F (RegisterSetType::* field)[N], const std::function<void(std::size_t index, volatile F&)>& callback)
+            FieldHelper& Case(volatile F(Registers::* field)[N], const std::function<void(std::size_t index, volatile F&)>& callback)
             {
                 std::size_t index;
-                if (SameField(field, offset, index))
+                if (SameField(offset, field, index))
                 {
                     if (callback)
                     {
@@ -67,14 +102,52 @@ namespace ExMM
             }
 
             template<class F, std::size_t N>
-            FieldHelper& Case(volatile F RegisterSetType::* field, const std::function<void(volatile RegisterSetType*, std::size_t index, volatile F&)>& callback)
+            FieldHelper& Case(volatile F Registers::* field, const std::function<void(volatile Registers*, std::size_t index, volatile F&)>& callback)
             {
                 std::size_t index;
-                if (SameField(field, offset, index))
+                if (SameField(offset, field, index))
                 {
                     if (callback)
                     {
                         callback(registers, index, (registers->*field)[index]);
+                    }
+                    somethingMatched = true;
+                }
+                return *this;
+            }
+
+            template<class F, std::size_t N>
+            FieldHelper& Inside(volatile F(Registers::* field)[N], const std::function<void(std::size_t index, FieldHelper<F>& next)>& callback)
+            {
+                std::size_t index;
+                size_t nestedOffset;
+
+                if (InsideField(offset, field, index, nestedOffset))
+                {
+                    if (callback)
+                    {
+                        volatile F* ptr = &(registers->*field)[index];
+                        FieldHelper<F> next = FieldHelper<F>(ptr, nestedOffset);
+                        callback(index, next);
+                    }
+                    somethingMatched = true;
+                }
+                return *this;
+            }
+
+            template<class F, std::size_t N>
+            FieldHelper& Inside(volatile F (Registers::* field)[N], const std::function<void(volatile Registers*, std::size_t index, FieldHelper& next)>& callback)
+            {
+                std::size_t index;
+                size_t nestedOffset;
+
+                if (InsideField(offset, field, index, nestedOffset))
+                {
+                    if (callback)
+                    {
+                        volatile F* ptr = &(registers->*field);
+                        FieldHelper<F> next = FieldHelper<F>(ptr, nestedOffset);
+                        callback(registers, index, next);
                     }
                     somethingMatched = true;
                 }
@@ -90,26 +163,40 @@ namespace ExMM
             }
 
         private:
-            volatile RegisterSetType* registers;
+            volatile Registers* registers;
             std::size_t offset;
 
             bool somethingMatched;
 
             template<class F>
-            static bool SameField(volatile F RegisterSetType::* field, std::size_t offset)
+            static bool SameField(std::size_t offset, volatile F Registers::* field)
             {
-                const RegisterSetType* x = nullptr;
+                const Registers* x = nullptr;
                 const auto* ptr = &(x->*field);
-                return reinterpret_cast<size_t>(ptr) == offset;
+                return reinterpret_cast<size_t>(ptr) - reinterpret_cast<size_t>(x) == offset;
+            }
+
+            template<class F>
+            static bool InsideField(std::size_t offset, volatile F Registers::* field, std::size_t& nestedOffset)
+            {
+                const Registers* x = nullptr;
+                const auto* ptr = &(x->*field);
+                if ((reinterpret_cast<size_t>(ptr) - reinterpret_cast<size_t>(x) >= offset) &&
+                    (reinterpret_cast<size_t>(ptr) - reinterpret_cast<size_t>(x) < offset + sizeof(F)))
+                {
+                    nestedOffset = reinterpret_cast<size_t>(ptr) - reinterpret_cast<size_t>(x) - offset;
+                    return true;
+                }
+                return false;
             }
 
             template<class F, int N>
-            static bool SameField(volatile F (RegisterSetType::* field)[N], std::size_t offset, std::size_t &index)
+            static bool SameField(std::size_t offset, volatile F (Registers::* field)[N], std::size_t &index)
             {
-                const RegisterSetType* x = nullptr;
+                const Registers* x = nullptr;
                 const auto* ptr = &(x->*field);
 
-                const auto from = reinterpret_cast<size_t>(ptr);
+                const auto from = reinterpret_cast<size_t>(ptr) - reinterpret_cast<size_t>(x);
                 const auto to = from + sizeof(F) * N;
 
                 if (offset >= from && offset < to)
@@ -124,11 +211,31 @@ namespace ExMM
 
                 return false;
             }
+
+            template<class F, int N>
+            static bool InsideField(std::size_t offset, volatile F(Registers::* field)[N], std::size_t &index, std::size_t& nestedOffset)
+            {
+                const Registers* x = nullptr;
+                const auto* ptr = &(x->*field);
+
+                const auto from = reinterpret_cast<size_t>(ptr) - reinterpret_cast<size_t>(x);
+                const auto to = from + sizeof(F) * N;
+
+                if (offset >= from && offset < to)
+                {
+                    const auto diff = offset - from;
+                    index = diff / sizeof(F);
+                    nestedOffset = diff % sizeof(F);
+                    return true;
+                }
+
+                return false;
+            }
         };
 
-        FieldHelper SwitchField(RegisterSetType* data, size_t offset)
+        FieldHelper<RegisterSetType> SwitchField(RegisterSetType* data, size_t offset)
         {
-            return FieldHelper(data, offset);
+            return FieldHelper<RegisterSetType>(data, offset);
         }
 
         virtual void HookRead(RegisterSetType* data, size_t offset)
