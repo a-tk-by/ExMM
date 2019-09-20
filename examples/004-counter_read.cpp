@@ -33,9 +33,9 @@ struct Controller004 final : public ControllerBase<HookTypes::Read, Registers>
             b += all->C;
             std::cout << "Field B increased by value of field C" << std::endl;
         })
-        .Else([]()
+        .Else([](std::size_t offset)
         {
-            std::cout << "Non-observed field" << std::endl;
+            std::cout << "Non-observed field at offset " << offset << std::endl;
         });
     }
 };

@@ -26,9 +26,7 @@ namespace ExMM
             template<class F>
             FieldHelper& Case(volatile F RegisterSetType::* field, const std::function<void(volatile F&)>& callback)
             {
-                const RegisterSetType* x = nullptr;
-                const auto* ptr = &(x->*field);
-                if (reinterpret_cast<size_t>(ptr) == offset)
+                if (SameField(field, offset))
                 {
                     if (callback)
                     {
@@ -41,7 +39,7 @@ namespace ExMM
 
             template<class F>
             FieldHelper& Case(volatile F RegisterSetType::* field, const std::function<void(volatile RegisterSetType*, volatile F&)>& callback)
-            {                
+            {
                 if (SameField(field, offset))
                 {
                     if (callback)
@@ -53,26 +51,78 @@ namespace ExMM
                 return *this;
             }
 
-            void Else(std::function<void()> callback) const
+            template<class F, std::size_t N>
+            FieldHelper& Case(volatile F (RegisterSetType::* field)[N], const std::function<void(std::size_t index, volatile F&)>& callback)
+            {
+                std::size_t index;
+                if (SameField(field, offset, index))
+                {
+                    if (callback)
+                    {
+                        callback(index, (registers->*field)[index]);
+                    }
+                    somethingMatched = true;
+                }
+                return *this;
+            }
+
+            template<class F, std::size_t N>
+            FieldHelper& Case(volatile F RegisterSetType::* field, const std::function<void(volatile RegisterSetType*, std::size_t index, volatile F&)>& callback)
+            {
+                std::size_t index;
+                if (SameField(field, offset, index))
+                {
+                    if (callback)
+                    {
+                        callback(registers, index, (registers->*field)[index]);
+                    }
+                    somethingMatched = true;
+                }
+                return *this;
+            }
+
+            void Else(std::function<void(std::size_t offset)> callback) const
             {
                 if (!somethingMatched)
                 {
-                    callback();
+                    callback(offset);
                 }
             }
 
         private:
             volatile RegisterSetType* registers;
-            size_t offset;
+            std::size_t offset;
 
             bool somethingMatched;
 
             template<class F>
-            static bool SameField(volatile F RegisterSetType::* field, size_t offset)
+            static bool SameField(volatile F RegisterSetType::* field, std::size_t offset)
             {
                 const RegisterSetType* x = nullptr;
                 const auto* ptr = &(x->*field);
                 return reinterpret_cast<size_t>(ptr) == offset;
+            }
+
+            template<class F, int N>
+            static bool SameField(volatile F (RegisterSetType::* field)[N], std::size_t offset, std::size_t &index)
+            {
+                const RegisterSetType* x = nullptr;
+                const auto* ptr = &(x->*field);
+
+                const auto from = reinterpret_cast<size_t>(ptr);
+                const auto to = from + sizeof(F) * N;
+
+                if (offset >= from && offset < to)
+                {
+                    const auto diff = offset - from;
+                    if (diff % sizeof(F) == 0)
+                    {
+                        index = diff / sizeof(F);
+                        return true;
+                    }
+                }
+
+                return false;
             }
         };
 
@@ -134,14 +184,14 @@ namespace ExMM
             this->privateIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPrivateArea());
         }
 
-        void TriggerInterrupt(int vector)
+        void TriggerInterrupt(int vector = 0)
         {
             std::function<void()> routine;
             if (LookupInterruptHandler(vector, routine)) return;
 
             if (routine)
             {
-                std::lock_guard<std::mutex> guard(interruptEntranceMutex);
+                std::lock_guard<std::recursive_mutex> guard(interruptEntranceMutex);
                 routine();
             }
         }
@@ -154,13 +204,13 @@ namespace ExMM
 
         void DoHookWrite(void* data, size_t offset) override
         {
-            std::lock_guard<std::mutex> guard(interruptsMutex);
+            std::lock_guard<std::recursive_mutex> guard(interruptEntranceMutex);
             HookWrite(reinterpret_cast<RegisterSetType*>(data), offset);
         }
 
         void DoHookRead(void* data, size_t offset) override
         {
-            std::lock_guard<std::mutex> guard(interruptsMutex);
+            std::lock_guard<std::recursive_mutex> guard(interruptEntranceMutex);
             HookRead(reinterpret_cast<RegisterSetType*>(data), offset);
         }
 
@@ -172,7 +222,7 @@ namespace ExMM
         RegisterSetType* publicIoArea;
         RegisterSetType* privateIoArea;
 
-        std::mutex interruptEntranceMutex;
+        std::recursive_mutex interruptEntranceMutex;
         std::map<int, std::function<void()>> interrupts;
         std::mutex interruptsMutex;
 
