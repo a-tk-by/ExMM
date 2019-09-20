@@ -45,7 +45,7 @@ EXMM_DEMO(ReadAccessCounter)
     output << "Register A counts read access" << std::endl;
 
     Controller004 controller;
-    auto *registers = controller.GetIoSpace();
+    auto *registers = controller.GetIoArea();
 
     std::vector<int> values;
 
