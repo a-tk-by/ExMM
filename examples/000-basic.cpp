@@ -20,7 +20,7 @@ EXMM_DEMO(Basic)
     output << "Basic demo - no hooks" << std::endl;
 
     const Controller000 controller;
-    auto *registers = controller.GetIoSpace();
+    auto *registers = controller.GetIoArea();
 
     ExMM::Run([registers]() {
         registers->A = 42;

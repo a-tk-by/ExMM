@@ -56,7 +56,7 @@ EXMM_DEMO(WriteOnlyHook)
     output << "Basic demo - only write hook" << std::endl;
 
     Controller003Write controller;
-    auto *registers = controller.GetIoSpace();
+    auto *registers = controller.GetIoArea();
 
     int sum;
     ExMM::Run([&registers, &sum]()
@@ -89,7 +89,7 @@ EXMM_DEMO(ReadOnlyHook)
     output << "Basic demo - only read hook" << std::endl;
 
     Controller003Read controller;
-    auto *registers = controller.GetIoSpace();
+    auto *registers = controller.GetIoArea();
 
     int sum;
 

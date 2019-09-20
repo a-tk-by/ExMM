@@ -7,7 +7,6 @@
 #include <cstddef>
 
 #include "registry.hpp"
-
 #include "hooktypes.hpp"
 #include "controllerinterface.hpp"
 
@@ -91,9 +90,9 @@ namespace ExMM
         virtual void Initialize(RegisterSetType* data)
         {}
 
-        volatile RegisterSetType* GetIoSpace() const
+        volatile RegisterSetType* GetIoArea() const
         {
-            return ioSpace;
+            return publicIoArea;
         }
 
         virtual ~ControllerBase()
@@ -116,13 +115,23 @@ namespace ExMM
         template<size_t size = sizeof(RegisterSetType)>
         ControllerBase()
         {
-            ioSpace = reinterpret_cast<RegisterSetType*>(Registry::Add(this, sizeof(RegisterSetType), HookType));
+            IoSpace *ioSpace = Registry::Add(this, sizeof(RegisterSetType), HookType);
+            publicIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPublicArea());
+            privateIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPrivateArea());
+        }
+
+        volatile RegisterSetType* GetPrivateIoArea() const
+        {
+            return privateIoArea;
         }
 
         template<typename = std::enable_if<std::is_same<RegisterSetType, void>::value>>
         explicit ControllerBase(size_t size)
         {
-            ioSpace = Registry::Add(this, size, HookType);
+            IoSpace *ioSpace = Registry::Add(this, size, HookType);
+
+            this->publicIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPublicArea());
+            this->privateIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPrivateArea());
         }
 
         void TriggerInterrupt(int vector)
@@ -160,7 +169,8 @@ namespace ExMM
             Initialize(reinterpret_cast<RegisterSetType*>(data));
         }
 
-        RegisterSetType* ioSpace;
+        RegisterSetType* publicIoArea;
+        RegisterSetType* privateIoArea;
 
         std::mutex interruptEntranceMutex;
         std::map<int, std::function<void()>> interrupts;

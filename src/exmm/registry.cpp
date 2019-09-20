@@ -31,7 +31,7 @@ namespace ExMM
         }
     }
 
-    void* Registry::Add(ControllerInterface* controller, size_t size, ExMM::HookTypes hookTypes)
+    struct IoSpace* Registry::Add(ControllerInterface* controller, size_t size, ExMM::HookTypes hookTypes)
     {
         InitPlatform();
 
@@ -39,7 +39,7 @@ namespace ExMM
 
         IoSpace* ioSpace = Platform::AllocateIoSpace(size, hookTypes);
         ioMap.insert(std::make_pair(controller, ioSpace));
-        return ioSpace->GetPublicArea();
+        return ioSpace;
     }
 
     bool Registry::FindController(void* rawData, ControllerInterface*& controller, IoSpace*& ioSpace, size_t& offset)
