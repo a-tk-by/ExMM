@@ -7,6 +7,7 @@
 #include <vector>
 #include <chrono>
 #include <iomanip>
+#include <thread>
 
 using namespace ExMM;
 
@@ -32,7 +33,7 @@ struct Controller007 final : public ControllerBase<HookTypes::Read, Registers>
         {
             timeLo = latchedLoValue;
         })
-        .Case<uint32_t>(&Registers::TimeHi,[this](volatile auto& timeHi)
+        .Case<uint32_t>(&Registers::TimeHi,[this](volatile uint32_t& timeHi)
         {
             static const std::chrono::seconds oneSecond{1};
 

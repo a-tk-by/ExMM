@@ -2,6 +2,7 @@
 
 
 #include "../exmm/platform.hpp"
+#include "../exmm/registry.hpp"
 #include "posix-iospace.hpp"
 #include "posix-common.hpp"
 #include "common.hpp"
@@ -111,11 +112,10 @@ void ExMM::Platform::RegisterHandlers()
     }
 }
 
-thread_local static BreakPointData breakPointData;
-
 bool ExMM::Platform::GetBreakPoint(void* context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset)
 {
     (void)context;
+    BreakPointData& breakPointData = BreakPointData::Get();
     if (breakPointData.Active)
     {
         ioSpace = breakPointData.IoSpace;
@@ -129,7 +129,7 @@ bool ExMM::Platform::GetBreakPoint(void* context, IoSpace*& ioSpace, ControllerI
 void ExMM::Platform::Run(const std::function<void()>& function)
 {
     if (!function) return;
-    
+
     function();
 }
 

@@ -3,10 +3,10 @@
 #include "../src/exmm.hpp"
 
 #include <iostream>
-#include <set>
 #include <cstddef>
 #include <vector>
 #include <atomic>
+#include <thread>
 
 using namespace ExMM;
 

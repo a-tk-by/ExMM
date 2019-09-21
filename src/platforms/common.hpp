@@ -19,6 +19,8 @@ namespace ExMM
         void Set(ExMM::IoSpace* ioSpace, ExMM::ControllerInterface* controller, size_t offset);
 
         void Unset();
+
+        static BreakPointData& Get();
     };
 }
 #endif // _PLATFORMS_COMMON_H_

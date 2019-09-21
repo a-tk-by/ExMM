@@ -8,6 +8,7 @@
 #include <queue>
 #include <atomic>
 #include <iomanip>
+#include <thread>
 
 using namespace ExMM;
 
@@ -199,9 +200,7 @@ EXMM_DEMO(FifoTelemetryReader)
 
     ExMM::Run([&values, &registers, &interruptHandled]()
     {
-        using namespace std::chrono_literals;
-
-        std::this_thread::sleep_for(4s);
+        std::this_thread::sleep_for(std::chrono::milliseconds{500});
 
         const uint32_t status = registers->Status;
         values.push_back(status);
@@ -225,7 +224,7 @@ EXMM_DEMO(FifoTelemetryReader)
             if (registers->StatusFields.StatusFifoEmpty)
             {
                 *Guard(std::cout) << "FIFO is empty. Waiting for 0.5s" << std::endl;
-                std::this_thread::sleep_for(500ms);
+                std::this_thread::sleep_for(std::chrono::milliseconds{500});
             }
 
             registers->NextRecord = true;

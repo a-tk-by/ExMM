@@ -27,3 +27,9 @@ void ExMM::BreakPointData::Unset()
     Offset = 0;
     Active = false;
 }
+
+ExMM::BreakPointData& ExMM::BreakPointData::Get()
+{
+    thread_local static ExMM::BreakPointData data;
+    return data;
+}

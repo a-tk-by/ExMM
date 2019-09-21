@@ -8,10 +8,11 @@
 #include <atomic>
 #include <iomanip>
 #include <algorithm>
+#include <thread>
 
 using namespace ExMM;
 
-volatile struct Registers
+struct Registers
 {
     struct ControlBits_t
     {
@@ -49,7 +50,7 @@ volatile struct Registers
         };
     };
 
-    volatile struct TimerData
+    struct TimerData
     {
         uint32_t TriggerTimeHi;         // Time when timer triggers, seconds.
         uint32_t TriggerTimeLo;         // Time when timer triggers, microseconds.
@@ -109,15 +110,15 @@ struct Controller009 final : public ControllerBase<HookTypes::ReadWrite, Registe
     void HookRead(Registers* data, size_t offset) override
     {
         SwitchField(data, offset)
-        .Case<uint32_t>(&Registers::Control, [this](volatile auto& value)
+        .Case<uint32_t>(&Registers::Control, [this](volatile uint32_t& value)
         {
             value = shadowControl;
         })
-        .Case<uint32_t>(&Registers::Status, [this](volatile auto& value)
+        .Case<uint32_t>(&Registers::Status, [this](volatile uint32_t& value)
         {
             value = shadowStatus;
         })
-        .Case<uint32_t>(&Registers::CurrentTimeHi, [this](volatile auto& value)
+        .Case<uint32_t>(&Registers::CurrentTimeHi, [this](volatile uint32_t& value)
         {
             value = GetCurrentTime(latchedCurrentTimeLo);
         });
@@ -126,14 +127,14 @@ struct Controller009 final : public ControllerBase<HookTypes::ReadWrite, Registe
     void HookWrite(Registers* data, size_t offset) override
     {
         SwitchField(data, offset)
-        .Case<uint32_t>(&Registers::Control, [this](volatile auto& value)
+        .Case<uint32_t>(&Registers::Control, [this](volatile uint32_t& value)
         {
             this->ControlChanged(value);
         })
-        .InsideArray<Registers::TimerData, 8>(&Registers::Timers, [](std::size_t index, auto& next)
+        .InsideArray<Registers::TimerData, 8>(&Registers::Timers, [](std::size_t index, FieldHelper<Registers::TimerData>& next)
         {
             next
-            .template Case<uint32_t>(&Registers::TimerData::TriggerTimeLo, [](volatile uint32_t& value)
+            .Case<uint32_t>(&Registers::TimerData::TriggerTimeLo, [](volatile uint32_t& value)
             {
                  value = std::min(uint32_t{value}, 999999u);
             });
@@ -171,7 +172,6 @@ EXMM_DEMO(TimeController)
 
     ExMM::Run([&values, &registers]()
     {
-        using namespace std::chrono_literals;
     });
 
     return values.size() < 0

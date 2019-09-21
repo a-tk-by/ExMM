@@ -91,9 +91,6 @@ static LONG WINAPI ExceptionHook(EXCEPTION_POINTERS* info)
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
-
-thread_local static ExMM::BreakPointData breakPointData;
-
 static void InstallBreakPoint(void* context)
 {
     reinterpret_cast<PCONTEXT>(context)->EFlags |= TRAP_FLAG_MASK; // Enable Trap Flag (TF) in EFlags register
