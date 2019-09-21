@@ -4,7 +4,7 @@
 #include <functional>
 #include <cstddef>
 
-#include "controller.hpp"
+#include "controllerinterface.hpp"
 
 namespace ExMM
 {

@@ -1,10 +1,10 @@
 #include "common.hpp"
 
-BreakPointData::BreakPointData(): IoSpace(), Controller(), Offset(), Active(false)
+ExMM::BreakPointData::BreakPointData(): IoSpace(), Controller(), Offset(), Active(false)
 {
 }
 
-void BreakPointData::Set(ExMM::IoSpace* ioSpace)
+void ExMM::BreakPointData::Set(ExMM::IoSpace* ioSpace)
 {
     IoSpace = ioSpace;
     Controller = nullptr;
@@ -12,7 +12,7 @@ void BreakPointData::Set(ExMM::IoSpace* ioSpace)
     Active = true;
 }
 
-void BreakPointData::Set(ExMM::IoSpace* ioSpace, ExMM::ControllerInterface* controller, size_t offset)
+void ExMM::BreakPointData::Set(ExMM::IoSpace* ioSpace, ExMM::ControllerInterface* controller, size_t offset)
 {
     IoSpace = ioSpace;
     Controller = controller;
@@ -20,7 +20,7 @@ void BreakPointData::Set(ExMM::IoSpace* ioSpace, ExMM::ControllerInterface* cont
     Active = true;
 }
 
-void BreakPointData::Unset()
+void ExMM::BreakPointData::Unset()
 {
     IoSpace = nullptr;
     Controller = nullptr;

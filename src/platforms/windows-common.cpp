@@ -92,7 +92,7 @@ static LONG WINAPI ExceptionHook(EXCEPTION_POINTERS* info)
 }
 
 
-thread_local static BreakPointData breakPointData;
+thread_local static ExMM::BreakPointData breakPointData;
 
 static void InstallBreakPoint(void* context)
 {

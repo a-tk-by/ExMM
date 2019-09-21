@@ -1,5 +1,6 @@
 #if defined(_WIN32)
 
+#include <stdexcept>
 #include "windows-iospace.hpp"
 
 ExMM::Windows::IoSpace::IoSpace(size_t size, ExMM::HookTypes hookTypes):
