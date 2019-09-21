@@ -23,12 +23,12 @@ namespace ExMM
     class Platform
     {
     public:
-        static IoSpace* AllocateIoSpace(size_t size, ExMM::HookTypes hookTypes);
+        static struct IoSpace* AllocateIoSpace(size_t size, HookTypes hookTypes);
         static void RegisterHandlers();
 
-        static void InstallBreakPoint(void* context, void* instruction, IoSpace* ioSpace);
-        static void InstallBreakPoint(void* context, void* instruction, IoSpace* ioSpace, struct ControllerInterface* controller, size_t offset);
-        static bool GetBreakPoint(void* context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset);
+        static void InstallBreakPoint(void* context, void* instruction, struct IoSpace* ioSpace);
+        static void InstallBreakPoint(void* context, void* instruction, struct IoSpace* ioSpace, struct ControllerInterface* controller, size_t offset);
+        static bool GetBreakPoint(void* context, IoSpace*& ioSpace, struct ControllerInterface*& controller, size_t& offset);
         static void UninstallBreakPoint(void* context);
 
         static void Run(const std::function<void()>& function);

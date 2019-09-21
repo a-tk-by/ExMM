@@ -6,9 +6,9 @@
 #include <mutex>
 #include <cstddef>
 
-#include "registry.hpp"
 #include "hooktypes.hpp"
 #include "controllerinterface.hpp"
+#include "registry.hpp"
 
 namespace ExMM
 {
@@ -207,7 +207,7 @@ namespace ExMM
         template<size_t size = sizeof(RegisterSetType)>
         ControllerBase()
         {
-            IoSpace *ioSpace = Registry::Add(this, sizeof(RegisterSetType), HookType);
+            struct IoSpace *ioSpace = Registry::Add(this, sizeof(RegisterSetType), HookType);
             publicIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPublicArea());
             privateIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPrivateArea());
         }
@@ -220,7 +220,7 @@ namespace ExMM
         template<typename = std::enable_if<std::is_same<RegisterSetType, void>::value>>
         explicit ControllerBase(size_t size)
         {
-            IoSpace *ioSpace = Registry::Add(this, size, HookType);
+            struct IoSpace *ioSpace = Registry::Add(this, size, HookType);
 
             this->publicIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPublicArea());
             this->privateIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPrivateArea());

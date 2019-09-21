@@ -8,9 +8,8 @@
 
 namespace ExMM
 {
-    class Registry
+    struct Registry
     {
-    public:
         Registry() = delete;
         ~Registry()= delete;
         Registry(const Registry&) = delete;
@@ -19,8 +18,8 @@ namespace ExMM
         Registry& operator=(Registry&&) = delete;
 
         static void Remove(struct ControllerInterface* controller);
-        static struct IoSpace* Add(ControllerInterface* controller, size_t size, HookTypes hookTypes);
-        static bool FindController(void* rawData, ControllerInterface*& controller, struct IoSpace*& ioSpace, size_t& offset);
+        static struct IoSpace* Add(struct ControllerInterface* controller, size_t size, ExMM::HookTypes hookTypes);
+        static bool FindController(void* rawData, struct ControllerInterface*& controller, struct IoSpace*& ioSpace, size_t& offset);
     };
 }
 #endif

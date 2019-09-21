@@ -1,8 +1,8 @@
 #ifdef _WIN32
 
-
 #include "../exmm/platform.hpp"
 #include "../exmm/controller.hpp"
+#include "../exmm/registry.hpp"
 
 #include <Windows.h>
 #include <cstddef>
@@ -32,9 +32,9 @@ static LONG WINAPI ExceptionHook(EXCEPTION_POINTERS* info)
     {
     case EXCEPTION_ACCESS_VIOLATION:
     {
-        ExMM::ControllerInterface* controller;
+        struct ExMM::ControllerInterface* controller;
         size_t offset;
-        ExMM::IoSpace* ioSpace;
+        struct ExMM::IoSpace* ioSpace;
 
         if (!ExMM::Registry::FindController(reinterpret_cast<void*>(info->ExceptionRecord->ExceptionInformation[1]),
             controller, ioSpace, offset))

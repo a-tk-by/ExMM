@@ -1,7 +1,7 @@
 #ifndef _CONTROLLER_INTERFACE_H_
 #define _CONTROLLER_INTERFACE_H_
 
-#include <stddef.h>
+#include <cstddef>
 #include "hooktypes.hpp"
 
 namespace ExMM
