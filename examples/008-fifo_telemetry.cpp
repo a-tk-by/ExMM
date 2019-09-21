@@ -123,7 +123,7 @@ struct Controller008 final : public ControllerBase<HookTypes::ReadWrite, Registe
         {
             status = shadowStatus.Word;
         })
-        .Case<uint32_t, 4>(&Registers::Telemetry, [this](std::size_t index, volatile uint32_t& tm)
+        .CaseArray<uint32_t, 4>(&Registers::Telemetry, [this](std::size_t index, volatile uint32_t& tm)
         {
             tm = shadowRecord.Words[index];
         });
