@@ -200,7 +200,7 @@ EXMM_DEMO(FifoTelemetryReader)
 
     ExMM::Run([&values, &registers, &interruptHandled]()
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds{500});
+        std::this_thread::sleep_for(std::chrono::milliseconds{4000});
 
         const uint32_t status = registers->Status;
         values.push_back(status);
