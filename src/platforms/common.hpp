@@ -20,6 +20,11 @@ namespace ExMM
 
         void Unset();
 
+        BreakPointData(const BreakPointData&) = delete;
+        BreakPointData(BreakPointData&&) = delete;
+        BreakPointData& operator=(const BreakPointData&) = delete;
+        BreakPointData& operator=(BreakPointData&&) = delete;
+
         static BreakPointData& Get();
     };
 }
