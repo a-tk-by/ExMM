@@ -83,7 +83,7 @@ struct Controller008 final : public ControllerBase<HookTypes::ReadWrite, Registe
         while (stopTmGenerator == false)
         {
             {
-                std::lock_guard<std::mutex> guard(fifoGuard);
+                std::lock_guard<std::recursive_mutex> guard(this->AcquireMemoryLock());
                 if (fifo.size() < FifoMaxSize)
                 {
                     TelemetryRecord buffer {{(1u << 24) + counter, (2 << 24) + counter, (4 << 24) + counter, (8 << 24) + counter}};
@@ -137,7 +137,7 @@ struct Controller008 final : public ControllerBase<HookTypes::ReadWrite, Registe
         {
             if (value)
             {
-                std::lock_guard<std::mutex> guard(fifoGuard);
+                std::lock_guard<std::recursive_mutex> guard(AcquireMemoryLock());
                 if (!fifo.empty())
                 {
                     shadowRecord = fifo.front();
@@ -162,7 +162,6 @@ private:
     std::atomic_bool stopTmGenerator;
     std::thread tmGenerator;
 
-    std::mutex fifoGuard;
     std::queue<TelemetryRecord> fifo;
     static constexpr unsigned FifoMaxSize = 255;
 
