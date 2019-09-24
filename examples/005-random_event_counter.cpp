@@ -22,7 +22,8 @@ struct Controller005 final : public ControllerBase<HookTypes::Read, Registers>
 {
     Controller005() : counter(), stopBackgroundThread()
     {
-        backgroundThread = std::thread([this, regs = GetPrivateIoArea()] ()
+        auto regs = GetPrivateIoArea();
+        backgroundThread = std::thread([this, regs] ()
         {
             while (stopBackgroundThread == false)
             {

@@ -221,7 +221,7 @@ private:
         Restart,
     };
 
-    std::atomic<TimerThreadControl> timerThreadControl = TimerThreadControl::Idle;
+    std::atomic<TimerThreadControl> timerThreadControl;
     
     uint32_t ControlChanged(uint32_t value)
     {
@@ -337,7 +337,7 @@ EXMM_DEMO(TimeController)
 
     std::vector<uint32_t> values;
 
-    std::atomic_int interruptsTriggered = 0;
+    std::atomic_int interruptsTriggered{0};
 
     controller.ConnectInterruptHandler(0, [&interruptsTriggered, registers, &output]()
     {
