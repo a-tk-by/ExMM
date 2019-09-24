@@ -233,9 +233,14 @@ namespace ExMM
 
             if (routine)
             {
-                std::lock_guard<std::recursive_mutex> guard(interruptEntranceMutex);
+                std::lock_guard<std::recursive_mutex> guard(memoryLockMutex);
                 routine();
             }
+        }
+
+        std::recursive_mutex& AcquireMemoryLock()
+        {
+            return this->memoryLockMutex;
         }
 
     private:
@@ -246,13 +251,13 @@ namespace ExMM
 
         void DoHookWrite(void* data, size_t offset) override
         {
-            std::lock_guard<std::recursive_mutex> guard(interruptEntranceMutex);
+            std::lock_guard<std::recursive_mutex> guard(memoryLockMutex);
             HookWrite(reinterpret_cast<RegisterSetType*>(data), offset);
         }
 
         void DoHookRead(void* data, size_t offset) override
         {
-            std::lock_guard<std::recursive_mutex> guard(interruptEntranceMutex);
+            std::lock_guard<std::recursive_mutex> guard(memoryLockMutex);
             HookRead(reinterpret_cast<RegisterSetType*>(data), offset);
         }
 
@@ -264,7 +269,8 @@ namespace ExMM
         RegisterSetType* publicIoArea;
         RegisterSetType* privateIoArea;
 
-        std::recursive_mutex interruptEntranceMutex;
+        std::recursive_mutex memoryLockMutex;
+
         std::map<int, std::function<void()>> interrupts;
         std::mutex interruptsMutex;
 
