@@ -15,7 +15,7 @@ using namespace ExMM;
 struct Guard
 {
     Guard(std::ostream& stream, std::recursive_mutex& otherMutex)
-        : lock(otherMutex, mutex), stream(stream)
+        : lockA(otherMutex), lockB(mutex), stream(stream)
     {
     }
 
@@ -26,7 +26,8 @@ struct Guard
 private:
     static std::mutex mutex;
 
-    std::lock_guard<std::recursive_mutex, std::mutex> lock;
+    std::lock_guard<std::recursive_mutex> lockA;
+    std::lock_guard<std::mutex> lockB;
     std::ostream& stream;
 };
 
