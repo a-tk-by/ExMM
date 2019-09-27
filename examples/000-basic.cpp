@@ -1,5 +1,4 @@
-#include "../utilities/examples-registry.hpp"
-
+#include <gtest/gtest.h>
 #include "../src/exmm.hpp"
 
 using namespace ExMM;
@@ -15,9 +14,10 @@ struct Controller000 final : public ControllerBase<HookTypes::None, Registers>
 {
 };
 
-EXMM_DEMO(Basic)
+TEST(BasicCase, basic)
 {
-    output << "Basic demo - no hooks" << std::endl;
+
+    std::cout << "Basic demo - no hooks" << std::endl;
 
     const Controller000 controller;
     auto *registers = controller.GetIoArea();
@@ -25,5 +25,5 @@ EXMM_DEMO(Basic)
     ExMM::Run([registers]() {
         registers->A = 42;
     });
-    return registers->A == 42;
+    EXPECT_EQ(registers->A,42);
 }

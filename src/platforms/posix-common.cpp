@@ -7,13 +7,10 @@
 #include "posix-common.hpp"
 #include "common.hpp"
 
-#include <signal.h>
+#include <csignal>
 #include <stdexcept>
-#include <sys/types.h>
-#include <unistd.h>
-#include <string.h>
+#include <cstring>
 
-#include <stdio.h>
 
 static void CallOldHandler(struct sigaction& action, int sig, siginfo_t* info, void* context, bool kill)
 {
@@ -52,7 +49,7 @@ static void AccessViolationHandler(int sig, siginfo_t* info, void* context)
     size_t offset;
     ExMM::IoSpace* ioSpace;
 
-    if (!ExMM::Registry::FindController(reinterpret_cast<void*>(info->si_addr), controller, ioSpace, offset))
+    if (!ExMM::Registry::FindController(info->si_addr, controller, ioSpace, offset))
     {
         CallOldHandler(oldAccessHandler, sig, info, context, true);
         return;
@@ -105,7 +102,7 @@ void ExMM::Platform::RegisterHandlers()
     struct sigaction tp_action = {};
     tp_action.sa_sigaction = TracePointHandler;
     tp_action.sa_flags = SA_SIGINFO;
-    struct sigaction tp_old;
+    struct sigaction tp_old = {0};
     if (sigaction(SIGTRAP, &tp_action, &tp_old) < 0)
     {
         throw std::runtime_error("Cannot register SIGTRAP handler");

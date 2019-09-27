@@ -3,11 +3,10 @@
 #include "posix-iospace.hpp"
 
 #include <sys/mman.h>
-#include <sys/types.h>
 #include <stdexcept>
 #include <unistd.h>
-#include <errno.h>
-#include <string.h>
+#include <cerrno>
+#include <cstring>
 
 
 ExMM::Posix::IoSpace::IoSpace(size_t size, HookTypes hookTypes) 

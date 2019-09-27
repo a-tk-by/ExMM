@@ -1,4 +1,4 @@
-#include "../utilities/examples-registry.hpp"
+#include <gtest/gtest.h>
 
 #include "../src/exmm.hpp"
 
@@ -15,7 +15,7 @@ using namespace ExMM;
 struct Guard
 {
     Guard(std::ostream& stream, std::recursive_mutex& otherMutex)
-        : lockA(otherMutex), lockB(mutex), stream(stream)
+        : lock(otherMutex, mutex), stream(stream)
     {
     }
 
@@ -24,14 +24,13 @@ struct Guard
         return stream;
     }
 private:
-    static std::mutex mutex;
+    static inline std::mutex mutex;
 
-    std::lock_guard<std::recursive_mutex> lockA;
-    std::lock_guard<std::mutex> lockB;
+    std::scoped_lock<std::recursive_mutex, std::mutex> lock;
     std::ostream& stream;
 };
 
-std::mutex Guard::mutex;
+
 
 
 struct Registers
@@ -62,11 +61,9 @@ struct Registers
 
 struct Controller008 final : public ControllerBase<HookTypes::ReadWrite, Registers>
 {
-    
-    Controller008()
+
+    Controller008() : stopTmGenerator(false), tmGenerator(std::thread([this](){GenerateTelemetry();}))
     {
-        stopTmGenerator = false;
-        tmGenerator = std::thread([this](){GenerateTelemetry();});
     }
 
     ~Controller008()
@@ -118,11 +115,11 @@ struct Controller008 final : public ControllerBase<HookTypes::ReadWrite, Registe
     void HookRead(Registers* data, size_t offset) override
     {
         SwitchField(data, offset)
-        .Case<uint32_t>(&Registers::Status, [this](volatile uint32_t& status)
+        .Case(&Registers::Status, [this](auto& status)
         {
             status = shadowStatus.Word;
         })
-        .CaseArray<uint32_t, 4>(&Registers::Telemetry, [this](std::size_t index, volatile uint32_t& tm)
+        .CaseArray(&Registers::Telemetry, [this](std::size_t index, auto& tm)
         {
             tm = shadowRecord.Words[index];
         });
@@ -131,7 +128,7 @@ struct Controller008 final : public ControllerBase<HookTypes::ReadWrite, Registe
     void HookWrite(Registers* data, size_t offset) override
     {
         SwitchField(data, offset)
-        .Case<bool>(&Registers::NextRecord, [this](volatile bool& value)
+        .Case(&Registers::NextRecord, [this](auto& value)
         {
             if (value)
             {
@@ -178,9 +175,9 @@ private:
 
 bool CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std::size_t count);
 
-EXMM_DEMO(FifoTelemetryReader)
+TEST(FifoTelemetryReaderCase, fifoTelemetryReader)
 {
-    output << "Registers access to FIFO buffer inside controller" << std::endl;
+    std::cout << "Registers access to FIFO buffer inside controller" << std::endl;
 
     Controller008 controller;
     auto *registers = controller.GetIoArea();
@@ -243,14 +240,13 @@ EXMM_DEMO(FifoTelemetryReader)
         }
     });
 
-    return values.size() == 1 + 4 + 1000*4
-        && ((values[0] & 0xFF) > 0)
-        && (values[1] == 0)
-        && (values[2] == 0)
-        && (values[3] == 0)
-        && (values[4] == 0)
-        && CheckCountersAndBits(values, 5, 1000)
-        ;
+    EXPECT_EQ(values.size(), (1 + 4 + 1000*4));
+    EXPECT_GT(values[0] & 0xFF, 0);
+    EXPECT_EQ(values[1], 0);
+    EXPECT_EQ (values[2], 0);
+    EXPECT_EQ(values[3], 0);
+    EXPECT_EQ(values[4], 0);
+    EXPECT_TRUE(CheckCountersAndBits(values, 5, 1000));
 }
 
 bool CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std::size_t count)

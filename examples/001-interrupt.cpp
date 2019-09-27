@@ -1,6 +1,6 @@
-#include "../utilities/examples-registry.hpp"
+#include <gtest/gtest.h>
 #include <iostream>
-#include <thread>
+#include <future>
 #include "../src/exmm.hpp"
 
 using namespace ExMM;
@@ -24,20 +24,20 @@ struct Controller001 final : public ControllerBase<HookTypes::None, Registers>
             success = true;
         });
 
-        std::thread([&]()
+        std::async([&]()
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
             TriggerInterrupt(0);
-        }).join();
+        });
 
         return success;
     }
 
 };
 
-EXMM_DEMO(BasicInterrupt)
+TEST(BasicInterruptCase, basicInterrupt)
 {
-    output << "Basic demo - Interrupt" << std::endl;
+    std::cout << "Basic demo - Interrupt" << std::endl;
 
     bool triggered;
     {
@@ -45,5 +45,5 @@ EXMM_DEMO(BasicInterrupt)
         triggered = controller.WaitForInterrupt();
     }
 
-    return triggered;
+    EXPECT_TRUE(triggered);
 }

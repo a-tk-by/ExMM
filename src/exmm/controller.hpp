@@ -24,72 +24,66 @@ namespace ExMM
                 : registers(registers), offset(offset), somethingMatched(false)
             {}
 
-            template<class F>
-            FieldHelper& Case(volatile F Registers::* field, const std::function<void(volatile F&)>& callback)
+
+
+
+            template<class F, class Func>
+            FieldHelper& Case(volatile F Registers::* field, const Func& callback)
             {
                 if (SameField(offset, field))
                 {
-                    if (callback)
-                    {
-                        callback(registers->*field);
-                    }
-                    somethingMatched = true;
+                   callback(registers->*field);
+                   somethingMatched = true;
                 }
                 return *this;
             }
 
-            template<class F>
-            FieldHelper& Inside(volatile F Registers::* field, const std::function<void(FieldHelper& next)>& callback)
+            template<class F, class Func>
+            FieldHelper& Inside(volatile F Registers::* field, const Func& callback)
             {
                 size_t nestedOffset;
                 if (InsideField(offset, field, nestedOffset))
                 {
-                    if (callback)
-                    {
-                        volatile F* ptr = &(registers->*field);
-                        FieldHelper<F> next(ptr, nestedOffset);
-                        callback(next);
-                    }
+                    volatile F* ptr = &(registers->*field);
+                    FieldHelper<F> next(ptr, nestedOffset);
+                    callback(next);
+
                     somethingMatched = true;
                 }
                 return *this;
             }
 
-            template<class F, std::size_t N>
-            FieldHelper& CaseArray(volatile F(Registers::* field)[N], const std::function<void(std::size_t index, volatile F&)>& callback)
+            template<class F, std::size_t N, class Func>
+            FieldHelper& CaseArray(volatile F(Registers::* field)[N], const Func& callback)
             {
                 std::size_t index;
                 if (SameField(offset, field, index))
                 {
-                    if (callback)
-                    {
-                        callback(index, (registers->*field)[index]);
-                    }
+                    callback(index, (registers->*field)[index]);
                     somethingMatched = true;
                 }
                 return *this;
             }
 
-            template<class F, std::size_t N>
-            FieldHelper& InsideArray(volatile F(Registers::* field)[N], const std::function<void(std::size_t index, FieldHelper<F>& next)>& callback)
+            template<class F, std::size_t N, class Func>
+            FieldHelper& InsideArray(volatile F(Registers::* field)[N], const Func& callback)
             {
                 std::size_t index;
                 size_t nestedOffset;
 
                 if (InsideField(offset, field, index, nestedOffset))
                 {
-                    if (callback)
-                    {
-                        volatile F* ptr = &(registers->*field)[index];
-                        FieldHelper<F> next = FieldHelper<F>(ptr, nestedOffset);
-                        callback(index, next);
-                    }
+                    volatile F* ptr = &(registers->*field)[index];
+                    FieldHelper<F> next = FieldHelper<F>(ptr, nestedOffset);
+                    callback(index, next);
+
                     somethingMatched = true;
                 }
                 return *this;
             }
 
-            void Else(std::function<void(std::size_t offset)> callback) const
+            template <class Func>
+            void Else(const Func& callback) const
             {
                 if (!somethingMatched)
                 {
@@ -192,7 +186,7 @@ namespace ExMM
             Registry::Remove(this);
         }
 
-        void ConnectInterruptHandler(int vector, std::function<void()> callback)
+        void ConnectInterruptHandler(int vector, const std::function<void()>& callback)
         {
             std::lock_guard<std::mutex> guard(interruptsMutex);
             interrupts[vector] = callback;

@@ -1,4 +1,4 @@
-#include "../utilities/examples-registry.hpp"
+#include <gtest/gtest.h>
 
 #include "../src/exmm.hpp"
 
@@ -33,9 +33,9 @@ struct Controller002 final : public ControllerBase<HookTypes::ReadWrite, Registe
     }
 };
 
-EXMM_DEMO(SimplePassiveHooks)
+TEST(SimplePassiveHooksCase, simplePassiveHooks)
 {
-    output << "Basic demo - simple passive hooks" << std::endl;
+    std::cout << "Basic demo - simple passive hooks" << std::endl;
 
     Controller002 controller;
     auto *registers = controller.GetIoArea();
@@ -54,14 +54,14 @@ EXMM_DEMO(SimplePassiveHooks)
     const auto notFoundRead = controller.readOffsets.end();
     const auto notFoundWrite = controller.writeOffsets.end();
 
-    return sum == (42 + 123 - 1)
-        && controller.readOffsets.find(0) != notFoundRead
-        && controller.readOffsets.find(4) != notFoundRead
-        && controller.readOffsets.find(8) != notFoundRead
-        && controller.readOffsets.find(1) == notFoundRead
-        && controller.writeOffsets.find(0) != notFoundWrite
-        && controller.writeOffsets.find(4) != notFoundWrite
-        && controller.writeOffsets.find(8) != notFoundWrite
-        && controller.writeOffsets.find(1) == notFoundWrite
-        ;
+
+    EXPECT_EQ(sum, (42 + 123 - 1));
+    EXPECT_NE(controller.readOffsets.find(0), notFoundRead);
+    EXPECT_NE(controller.readOffsets.find(4), notFoundRead);
+    EXPECT_NE( controller.readOffsets.find(8), notFoundRead);
+    EXPECT_EQ( controller.readOffsets.find(1), notFoundRead);
+    EXPECT_NE( controller.writeOffsets.find(0), notFoundWrite);
+    EXPECT_NE( controller.writeOffsets.find(4), notFoundWrite);
+    EXPECT_NE( controller.writeOffsets.find(8), notFoundWrite);
+    EXPECT_EQ(controller.writeOffsets.find(1), notFoundWrite);
 }
