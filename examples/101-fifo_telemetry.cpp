@@ -173,7 +173,7 @@ private:
     } shadowStatus = {};
 };
 
-bool CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std::size_t count);
+int CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std::size_t count);
 
 TEST(FifoTelemetryReaderCase, fifoTelemetryReader)
 {
@@ -246,24 +246,24 @@ TEST(FifoTelemetryReaderCase, fifoTelemetryReader)
     EXPECT_EQ (values[2], 0);
     EXPECT_EQ(values[3], 0);
     EXPECT_EQ(values[4], 0);
-    EXPECT_TRUE(CheckCountersAndBits(values, 5, 1000));
+    EXPECT_EQ(-1, CheckCountersAndBits(values, 5, 1000));
 }
 
-bool CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std::size_t count)
+int CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std::size_t count)
 {
     for (std::size_t i = 0; i < count; ++i)
     {
         uint32_t tmp[4] = { values[offset + 4 * i], values[offset + 4 * i + 1], values[offset + 4 * i + 2], values[offset + 4 * i + 3]};
-        if ((tmp[0] >> 24) != 1) return false;
-        if ((tmp[1] >> 24) != 2) return false;
-        if ((tmp[2] >> 24) != 4) return false;
-        if ((tmp[3] >> 24) != 8) return false;
+        if ((tmp[0] >> 24) != 1) return i;
+        if ((tmp[1] >> 24) != 2) return i;
+        if ((tmp[2] >> 24) != 4) return i;
+        if ((tmp[3] >> 24) != 8) return i;
 
-        if ((tmp[0] & 0xFFFF) != i) return false;
-        if ((tmp[1] & 0xFFFF) != i) return false;
-        if ((tmp[2] & 0xFFFF) != i) return false;
-        if ((tmp[3] & 0xFFFF) != i) return false;
+        if ((tmp[0] & 0xFFFF) != i) return i;
+        if ((tmp[1] & 0xFFFF) != i) return i;
+        if ((tmp[2] & 0xFFFF) != i) return i;
+        if ((tmp[3] & 0xFFFF) != i) return i;
     }
 
-    return true;
+    return -1;
 }
