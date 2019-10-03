@@ -14,10 +14,14 @@ endif()
 
 include(${CMAKE_BINARY_DIR}/conan.cmake)
 
-conan_cmake_run(REQUIRES gtest/1.8.0@lasote/stable
-        BASIC_SETUP
+
+conan_cmake_run(REQUIRES gtest/1.8.1@bincrafters/stable
+        BASIC_SETUP 
         BUILD missing)
 
+
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
 
 
 file(GLOB_RECURSE SOURCE ./src/*.cpp)
@@ -29,11 +33,14 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
 
 
 file(GLOB_RECURSE EXAMPLES ./examples/*.cpp)
-
+message(STATUS  ${CONAN_LIBS_GTEST})
 add_executable("${PROJECT_NAME}-Demo" ${EXAMPLES})
 set_property(TARGET "${PROJECT_NAME}-Demo"  PROPERTY CXX_STANDARD 17)
-target_link_libraries("${PROJECT_NAME}-Demo" ${PROJECT_NAME} gtest gtest_main)
+target_link_libraries("${PROJECT_NAME}-Demo" ${PROJECT_NAME}  )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-target_link_libraries("${PROJECT_NAME}-Demo" Threads::Threads)
+target_link_libraries("${PROJECT_NAME}-Demo" Threads::Threads ${CONAN_LIBS})
+
+enable_testing()
+add_test(Demo bin/${PROJECT_NAME}-Demo)
