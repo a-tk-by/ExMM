@@ -28,7 +28,7 @@ struct Controller001 final : public ControllerBase<HookTypes::None, Registers>
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
             TriggerInterrupt(0);
-        });
+        }).get();
 
         return success;
     }
