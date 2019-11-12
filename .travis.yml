@@ -20,9 +20,9 @@ matrix:
       addons:
         apt:
           packages: &precise_latest_boost_packages
-            - gcc-8.2
-            - g++-8.2
-            - gcov-8.2
+            - gcc-8
+            - g++-8
+            - gcov-8
             - clang-7
             - valgrind
             # Misc
