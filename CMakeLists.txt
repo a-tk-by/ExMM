@@ -45,5 +45,5 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries("${PROJECT_NAME}-Demo" Threads::Threads ${CONAN_LIBS})
 
-enable_testing()
-add_test(Demo bin/${PROJECT_NAME}-Demo)
+
+add_custom_target(test COMMAND bin/${PROJECT_NAME}-Demo)
