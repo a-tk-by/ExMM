@@ -52,12 +52,18 @@ script:
   ############################################################################
   # Build main and tests
   ############################################################################
-  - mkdir -p build
-  - cd build
-  - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS}  -DBUILD_TESTS=ON .. # -DCMAKE_BUILD_TYPE=Coverage
+  - mkdir -p buildDebug
+  - cd buildDebug
+  - cmake -CMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=${CXX_FLAGS}  -DBUILD_TESTS=ON .. # -DCMAKE_BUILD_TYPE=Coverage
   - cmake --build . --target all
-#  - make project1_coverage
   - cmake --build . --target test
+  - mkdir -p buildRelease
+  - cd buildRelease
+  - cmake -CMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=${CXX_FLAGS}  -DBUILD_TESTS=ON .. # -DCMAKE_BUILD_TYPE=Coverage
+  - cmake --build . --target all
+  - cmake --build . --target test
+#  - make project1_coverage
+
 
 #
 #after_success:
