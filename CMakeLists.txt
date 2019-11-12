@@ -6,6 +6,10 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(DEBUG_INFO ON)
 set(OUTPUT_DIR ${CMAKE_BINARY_DIR}/CMakeOut/bin/ CACHE PATH "Path for output binary") 
 
+set(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+set(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+
+
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
     message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
     file(DOWNLOAD "https://github.com/conan-io/cmake-conan/raw/v0.14/conan.cmake"
@@ -35,7 +39,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
 
 
 file(GLOB_RECURSE EXAMPLES ./examples/*.cpp)
-message(STATUS  ${CONAN_LIBS_GTEST})
+
 add_executable("${PROJECT_NAME}-Demo" ${EXAMPLES})
 set_property(TARGET "${PROJECT_NAME}-Demo"  PROPERTY CXX_STANDARD 17)
 
@@ -47,3 +51,12 @@ target_link_libraries("${PROJECT_NAME}-Demo" Threads::Threads ${CONAN_LIBS})
 
 
 add_custom_target(test COMMAND bin/${PROJECT_NAME}-Demo)
+
+include(CodeCoverage.cmake)
+SETUP_TARGET_FOR_COVERAGE(
+        coverage_${PROJECT_NAME}-Demo  # Name for custom target.
+        "${PROJECT_NAME}-Demo"       # Name of the test driver executable that runs the tests.
+        # NOTE! This should always have a ZERO as exit code
+        # otherwise the coverage generation will not complete.
+        coverage_${PROJECT_NAME}-Demo_dir            # Name of output directory.
+)

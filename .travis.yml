@@ -8,7 +8,6 @@ env:
     # Global build options and C++ flags
     - CXX_FLAGS="-Wall -pedantic -Werror -Wno-variadic-macros -Wno-long-long -Wno-shadow"
     # Misc
-    - RUN_TESTS=true
     - COVERAGE=true
 
 matrix:
@@ -54,12 +53,13 @@ script:
   ############################################################################
   - mkdir -p buildDebug
   - cd buildDebug
-  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=${CXX_FLAGS}  -DBUILD_TESTS=ON .. # -DCMAKE_BUILD_TYPE=Coverage
+  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=${CXX_FLAGS}  ..
   - cmake --build . --target all
   - cmake --build . --target test
+  - cd ..
   - mkdir -p buildRelease
   - cd buildRelease
-  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=${CXX_FLAGS}  -DBUILD_TESTS=ON .. # -DCMAKE_BUILD_TYPE=Coverage
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=${CXX_FLAGS} ..
   - cmake --build . --target all
   - cmake --build . --target test
 #  - make project1_coverage
