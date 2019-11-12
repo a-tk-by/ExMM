@@ -22,7 +22,6 @@ matrix:
           packages: &precise_latest_boost_packages
             - gcc-8
             - g++-8
-            - gcov-8
             - clang-7
             - valgrind
             # Misc
