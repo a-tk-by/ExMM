@@ -1,70 +1,46 @@
-language: cpp
+dist:     bionic    # используем Ubuntu 14.04 Trusty Tahr (а не 12.02 Precise Pangolin)
+sudo:     required  # используем Virtual Machine (а не Docker container)
+
+language: cpp       # на практике разницы между специфичным для C++ окружением
+# и, скажем, python -- никакой. Но пусть будет cpp.
+
+os:
+  # будем прогонять CI и на Linux, и на Mac OS X...
+  - linux
+  - osx
+
+compiler:
+  # ... и с помощью GCC, и Clang
+  - gcc
+  - clang
 
 env:
-  global:
-    # Ubuntu version
-    - LINUX_DIST=bionic
-    - DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
-    # Global build options and C++ flags
-    - CXX_FLAGS="-Wall -pedantic -Werror -Wno-variadic-macros -Wno-long-long -Wno-shadow"
-    # Misc
-    - COVERAGE=true
+  # список переменных окружения, влияющих на матрицу сборки:
+  - TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
+  - TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+  - TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+  - TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
 matrix:
-  include:
-    - os: linux
-      dist: bionic
-      sudo: true
+  exclude:
+    # вручную исключим ненужные элементы из матрицы сборки:
+    - os:       osx
       compiler: gcc
-      addons:
-        apt:
-          packages: &precise_latest_boost_packages
-            - gcc-8
-            - g++-8
-            - clang-7
-            - valgrind
-            # Misc
-            - python-yaml
-            - lcov
-            - libopencv-dev
-            - cmake
-#          sources: &precise_latest_boost_sources
-#            - ubuntu-toolchain-r-test
-#            - llvm-toolchain-precise-7
 
-before_install:
-  # Combine global build options with OS/compiler-dependent options
-  - export CMAKE_OPTIONS=${CMAKE_OPTIONS}" "${ENV_CMAKE_OPTIONS}
-  - export CXX_FLAGS=${CXX_FLAGS}" "${ENV_CXX_FLAGS}
+    - os:  osx
+      env: TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+
+    - os:  osx
+      env: TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
 install:
-  - if [ "$CXX" = "clang++" ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="clang++-7" CC="clang-7"; fi
-  - echo ${PATH}
-  - echo ${CXX}
-  - ${CXX} --version
-  - ${CXX} -v
-  - sudo pip install codecov
-  - sudo pip install conan
-
+  # скрипт настройки среды и установки зависимостей:
+  - source ci/travis/install-$TRAVIS_OS_NAME.sh
 
 script:
-  ############################################################################
-  # Build main and tests
-  ############################################################################
-  - mkdir -p buildDebug
-  - cd buildDebug
-  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=${CXX_FLAGS}  ..
-  - cmake --build . --target all
-  - cmake --build . --target test
-  - cd ..
-  - mkdir -p buildRelease
-  - cd buildRelease
-  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=${CXX_FLAGS} ..
-  - cmake --build . --target all
-  - cmake --build . --target test
-#  - make project1_coverage
-
-
-#
-#after_success:
-#  - codecov -t c376990f-2ad6-4f7b-bbdb-5378a52e295c -X gcov
+  # скрипт сборки и тестирования проекта:
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DTARGET_CPU=$TARGET_CPU
+  - cmake --build .
+  - cmake --build . --target examples
