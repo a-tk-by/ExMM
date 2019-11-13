@@ -16,4 +16,4 @@ else
 fi
 
 
-pip install conan
+sudo pip install conan
