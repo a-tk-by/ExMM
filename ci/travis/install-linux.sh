@@ -1,6 +1,6 @@
 
 
-
+sudo apt-get -qq update
 sudo apt install cmake gcov-8 lcov
 
 if [ "$TARGET_CPU" == "x86" ]; then
