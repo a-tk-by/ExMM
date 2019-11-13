@@ -1,2 +1,2 @@
 brew update
-brew install coreutils
+sudo pip install conan
