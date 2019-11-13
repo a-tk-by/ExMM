@@ -50,7 +50,7 @@ find_package(Threads REQUIRED)
 target_link_libraries("${PROJECT_NAME}-Demo" Threads::Threads ${CONAN_LIBS})
 
 
-add_custom_target(test COMMAND bin/${PROJECT_NAME}-Demo)
+add_custom_target(example COMMAND bin/${PROJECT_NAME}-Demo)
 
 include(CodeCoverage.cmake)
 SETUP_TARGET_FOR_COVERAGE(
