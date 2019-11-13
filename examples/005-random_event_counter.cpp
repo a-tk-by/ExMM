@@ -14,7 +14,7 @@ struct Registers
 {
     volatile int Counter;
     volatile int Active : 1;
-    volatile int : 0;
+    int : 0;
     volatile int Other[10];
 };
 
