@@ -25,7 +25,7 @@ namespace ExMM
             {}
 
             template<class F, class Func>
-            FieldHelper& Case(volatile F Registers::* field, const Func& callback)
+            FieldHelper& Case(F Registers::* volatile field, const Func& callback)
             {
                 if (SameField(offset, field))
                 {
@@ -36,7 +36,7 @@ namespace ExMM
             }
 
             template<class F, class Func>
-            FieldHelper& Inside(volatile F Registers::* field, const Func& callback)
+            FieldHelper& Inside(F Registers::* volatile field, const Func& callback)
             {
                 size_t nestedOffset;
                 if (InsideField(offset, field, nestedOffset))
@@ -51,7 +51,7 @@ namespace ExMM
             }
 
             template<class F, std::size_t N, class Func>
-            FieldHelper& CaseArray(volatile F(Registers::* field)[N], const Func& callback)
+            FieldHelper& CaseArray(F(Registers::* volatile field)[N], const Func& callback)
             {
                 std::size_t index;
                 if (SameField(offset, field, index))
@@ -63,7 +63,7 @@ namespace ExMM
             }
 
             template<class F, std::size_t N, class Func>
-            FieldHelper& InsideArray(volatile F(Registers::* field)[N], const Func& callback)
+            FieldHelper& InsideArray(F(Registers::* volatile field)[N], const Func& callback)
             {
                 std::size_t index;
                 size_t nestedOffset;

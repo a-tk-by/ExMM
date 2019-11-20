@@ -46,7 +46,7 @@ struct Controller005 final : public ControllerBase<HookTypes::Read, Registers>
         std::cout << "[Read] << " << offset << std::endl;
         
         SwitchField(data, offset)
-                .Case<int>(&Registers::Counter, [](volatile int &counter) {
+                .Case(&Registers::Counter, [](auto &counter) {
                     std::cout << "Polling counter: " << std::dec << counter << std::endl;
                 });
     }
