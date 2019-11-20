@@ -20,13 +20,13 @@ struct Controller002 final : public ControllerBase<HookTypes::ReadWrite, Registe
     std::set<size_t> readOffsets;
     std::set<size_t> writeOffsets;
 
-    void HookRead(Registers* data, size_t offset) override
+    void HookRead(volatile Registers* data, size_t offset) override
     {
         readOffsets.insert(offset);
         std::cout << "Before read at offset " << std::hex << offset << std::endl;
     }
 
-    void HookWrite(Registers* data, size_t offset) override
+    void HookWrite(volatile Registers* data, size_t offset) override
     {
         writeOffsets.insert(offset);
         std::cout << "After write at offset " << std::hex << offset << std::endl;

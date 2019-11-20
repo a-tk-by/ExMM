@@ -20,7 +20,7 @@ struct Controller006 final : public ControllerBase<HookTypes::Read, Registers>
     Controller006() : whenStarted(std::chrono::system_clock::now())
     {}
     
-    void HookRead(Registers *data, size_t offset) override
+    void HookRead(volatile Registers *data, size_t offset) override
     {
         std::cout << "Before read at offset " << std::hex << offset << std::endl;
         

@@ -112,7 +112,7 @@ struct Controller008 final : public ControllerBase<HookTypes::ReadWrite, Registe
     }
 
 
-    void HookRead(Registers* data, size_t offset) override
+    void HookRead(volatile Registers* data, size_t offset) override
     {
         SwitchField(data, offset)
         .Case(&Registers::Status, [this](auto& status)
@@ -125,7 +125,7 @@ struct Controller008 final : public ControllerBase<HookTypes::ReadWrite, Registe
         });
     }
 
-    void HookWrite(Registers* data, size_t offset) override
+    void HookWrite(volatile Registers* data, size_t offset) override
     {
         SwitchField(data, offset)
         .Case(&Registers::NextRecord, [this](auto& value)

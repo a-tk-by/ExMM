@@ -129,7 +129,7 @@ struct Controller009 final : public ControllerBase<HookTypes::ReadWrite, Registe
         timerThread.join();
     }
     
-    void HookRead(Registers *data, size_t offset) override
+    void HookRead(volatile Registers *data, size_t offset) override
     {
         std::cout << "Hook read #" << offset << " : ";
         
@@ -161,7 +161,7 @@ struct Controller009 final : public ControllerBase<HookTypes::ReadWrite, Registe
         std::cout << std::endl;
     }
     
-    void HookWrite(Registers *data, size_t offset) override
+    void HookWrite(volatile Registers *data, size_t offset) override
     {
         std::cout << "Hook write #" << offset << " : ";
         

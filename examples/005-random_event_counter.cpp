@@ -41,7 +41,7 @@ struct Controller005 final : public ControllerBase<HookTypes::Read, Registers>
         backgroundThread.join();
     }
     
-    void HookRead(Registers *data, size_t offset) override
+    void HookRead(volatile Registers *data, size_t offset) override
     {
         std::cout << "[Read] << " << offset << std::endl;
         

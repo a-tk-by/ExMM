@@ -24,9 +24,6 @@ namespace ExMM
                 : registers(registers), offset(offset), somethingMatched(false)
             {}
 
-
-
-
             template<class F, class Func>
             FieldHelper& Case(volatile F Registers::* field, const Func& callback)
             {
@@ -162,18 +159,18 @@ namespace ExMM
             }
         };
 
-        FieldHelper<RegisterSetType> SwitchField(RegisterSetType* data, size_t offset)
+        FieldHelper<RegisterSetType> SwitchField(volatile RegisterSetType* data, size_t offset)
         {
             return FieldHelper<RegisterSetType>(data, offset);
         }
 
-        virtual void HookRead(RegisterSetType* data, size_t offset)
+        virtual void HookRead(volatile RegisterSetType* data, size_t offset)
         {}
 
-        virtual void HookWrite(RegisterSetType* data, size_t offset)
+        virtual void HookWrite(volatile RegisterSetType* data, size_t offset)
         {}
 
-        virtual void Initialize(RegisterSetType* data)
+        virtual void Initialize(volatile RegisterSetType* data)
         {}
 
         volatile RegisterSetType* GetIoArea() const
@@ -243,21 +240,21 @@ namespace ExMM
             return HookType;
         }
 
-        void DoHookWrite(void* data, size_t offset) override
+        void DoHookWrite(volatile void* data, size_t offset) override
         {
             std::lock_guard<std::recursive_mutex> guard(memoryLockMutex);
-            HookWrite(reinterpret_cast<RegisterSetType*>(data), offset);
+            HookWrite(reinterpret_cast<volatile RegisterSetType*>(data), offset);
         }
 
-        void DoHookRead(void* data, size_t offset) override
+        void DoHookRead(volatile void* data, size_t offset) override
         {
             std::lock_guard<std::recursive_mutex> guard(memoryLockMutex);
-            HookRead(reinterpret_cast<RegisterSetType*>(data), offset);
+            HookRead(reinterpret_cast<volatile RegisterSetType*>(data), offset);
         }
 
-        void DoInitialize(void* data) override
+        void DoInitialize(volatile void* data) override
         {
-            Initialize(reinterpret_cast<RegisterSetType*>(data));
+            Initialize(reinterpret_cast<volatile RegisterSetType*>(data));
         }
 
         RegisterSetType* publicIoArea;
