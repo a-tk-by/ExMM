@@ -62,8 +62,9 @@ struct Registers
 struct Controller008 final : public ControllerBase<HookTypes::ReadWrite, Registers>
 {
 
-    Controller008() : stopTmGenerator(false), tmGenerator(std::thread([this](){GenerateTelemetry();}))
+    Controller008() : stopTmGenerator(false)
     {
+        tmGenerator = std::thread([this]() {GenerateTelemetry(); });
     }
 
     ~Controller008()
@@ -241,7 +242,7 @@ TEST(FifoTelemetryReaderCase, fifoTelemetryReader)
     });
 
     EXPECT_EQ(values.size(), (1 + 4 + 1000*4));
-    EXPECT_GT(values[0] & 0xFF, 0);
+    EXPECT_GT(values[0] & 0xFFu, 0);
     EXPECT_EQ(values[1], 0);
     EXPECT_EQ (values[2], 0);
     EXPECT_EQ(values[3], 0);
