@@ -40,8 +40,8 @@ TEST(ElapsedTimeRegisterAccessCase, elapsedTimeRegisterAccess)
 {
     std::cout << "Register Time reads time elapsed since controller start"
               << std::endl;
-    
-    Controller006 controller;
+
+    const Controller006 controller;
     auto *registers = controller.GetIoArea();
     
     std::vector<int> values;

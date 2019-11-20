@@ -39,8 +39,8 @@ struct Controller004 final : public ControllerBase<HookTypes::Read, Registers>
 TEST(ReadAccessCounterCase, readAccessCounter)
 {
     std::cout << "Register A counts read access" << std::endl;
-    
-    Controller004 controller;
+
+    const Controller004 controller;
     auto *registers = controller.GetIoArea();
     
     std::vector<int> values;

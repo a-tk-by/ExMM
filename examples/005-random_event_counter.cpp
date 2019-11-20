@@ -61,8 +61,8 @@ private:
 TEST(RandomEventCounterCase, randomEventCounter)
 {
     std::cout << "Background thread counts some events what occured with random interval" << std::endl;
-    
-    Controller005 controller;
+
+    const Controller005 controller;
     auto *registers = controller.GetIoArea();
     
     std::vector<int> values;

@@ -18,6 +18,8 @@ namespace ExMM
         virtual void RestoreProtection() = 0;
 
         virtual ~IoSpace() = default;
+    protected:
+        IoSpace() = default;
     };
 
     class Platform
