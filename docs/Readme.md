@@ -2,6 +2,6 @@
 [Library architechute](architecture.md)
 [Hooking mechanism](hooking.md)
 [Hooking DSL](dsl.md)
-[Examples](examples.md)
+[Getting started](gettingstarted.md)
 [Known problems](problems.md)
 [Further plans](plans.md)
