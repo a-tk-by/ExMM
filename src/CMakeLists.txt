@@ -1,0 +1,6 @@
+project(ExMM)
+
+file(GLOB_RECURSE SOURCE *.cpp)
+file(GLOB_RECURSE HEADERS *.hpp)
+add_library(${PROJECT_NAME} STATIC ${HEADERS} ${SOURCE})
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)

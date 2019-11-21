@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(ExMM)
+project(ExMM-Demo)
 
 option(TARGET_CPU "arch" "x86_64")
 
@@ -14,34 +14,33 @@ if(TARGET_CPU STREQUAL "x86")
     set(CMAKE_CXX_FLAGS "-m32 ${CMAKE_CXX_FLAGS}")
 endif()
 
-add_subdirectory(googletest)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+add_subdirectory(googletest)
 
-file(GLOB_RECURSE SOURCE ./src/*.cpp)
-file(GLOB_RECURSE HEADERS ./src/*.hpp)
-add_library(${PROJECT_NAME} STATIC ${HEADERS} ${SOURCE})
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
+add_subdirectory(src)
+
 
 
 file(GLOB_RECURSE EXAMPLES ./examples/*.cpp)
-add_executable("${PROJECT_NAME}-Demo" ${EXAMPLES})
-set_property(TARGET "${PROJECT_NAME}-Demo"  PROPERTY CXX_STANDARD 17)
-target_link_libraries("${PROJECT_NAME}-Demo" ${PROJECT_NAME} gtest gtest_main)
+add_executable("${PROJECT_NAME}" ${EXAMPLES})
+set_property(TARGET "${PROJECT_NAME}"  PROPERTY CXX_STANDARD 17)
+target_link_libraries("${PROJECT_NAME}" ExMM gtest gtest_main)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-target_link_libraries("${PROJECT_NAME}-Demo" Threads::Threads gtest gtest_main)
+target_link_libraries("${PROJECT_NAME}" Threads::Threads)
 
 
 IF(MSVC)
-  add_custom_target(examples COMMAND ${CMAKE_BUILD_TYPE}/${PROJECT_NAME}-Demo)
+  add_custom_target(examples COMMAND bin/${CMAKE_BUILD_TYPE}/${PROJECT_NAME})
 else()
   add_custom_target(examples COMMAND bin/${PROJECT_NAME}-Demo)
 endif()
 #include(CodeCoverage.cmake)
+
 #SETUP_TARGET_FOR_COVERAGE(
 #        coverage_${PROJECT_NAME}-Demo  # Name for custom target.
 #        "${PROJECT_NAME}-Demo"       # Name of the test driver executable that runs the tests.
