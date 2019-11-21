@@ -11,9 +11,12 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 #set(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
 #set(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
 
-
-
 add_subdirectory(googletest)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 
 file(GLOB_RECURSE SOURCE ./src/*.cpp)
 file(GLOB_RECURSE HEADERS ./src/*.hpp)
@@ -34,6 +37,7 @@ target_link_libraries("${PROJECT_NAME}-Demo" ${PROJECT_NAME} gtest gtest_main)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries("${PROJECT_NAME}-Demo" Threads::Threads gtest gtest_main)
+
 
 IF(MSVC)
   add_custom_target(examples COMMAND ${CMAKE_BUILD_TYPE}/${PROJECT_NAME}-Demo)
