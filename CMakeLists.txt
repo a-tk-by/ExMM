@@ -37,7 +37,7 @@ target_link_libraries("${PROJECT_NAME}" Threads::Threads)
 IF(MSVC)
   add_custom_target(examples COMMAND bin/${CMAKE_BUILD_TYPE}/${PROJECT_NAME})
 else()
-  add_custom_target(examples COMMAND bin/${PROJECT_NAME}-Demo)
+  add_custom_target(examples COMMAND bin/${PROJECT_NAME})
 endif()
 #include(CodeCoverage.cmake)
 
