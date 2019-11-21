@@ -8,6 +8,7 @@
 #include <atomic>
 #include <iomanip>
 #include <thread>
+#include <algorithm>
 
 using namespace ExMM;
 

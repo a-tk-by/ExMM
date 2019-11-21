@@ -7,25 +7,11 @@ option(TARGET_CPU "arch" "x86_64")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(DEBUG_INFO ON)
 set(OUTPUT_DIR ${CMAKE_BINARY_DIR}/CMakeOut/bin/ CACHE PATH "Path for output binary")
-
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 #set(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
 #set(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
 
 
-#if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-#    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-#    file(DOWNLOAD "https://github.com/conan-io/cmake-conan/raw/v0.14/conan.cmake"
-#            "${CMAKE_BINARY_DIR}/conan.cmake")
-#endif()
-
-#include(${CMAKE_BINARY_DIR}/conan.cmake)
-#conan_cmake_run(REQUIRES gtest/1.8.1@bincrafters/stable
-#        BASIC_SETUP
-#        ARCH ${TARGET_CPU}
-#        BUILD missing)
-
-#include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-#conan_basic_setup()
 
 add_subdirectory(googletest)
 
@@ -49,9 +35,11 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries("${PROJECT_NAME}-Demo" Threads::Threads gtest gtest_main)
 
-
-add_custom_target(examples COMMAND bin/${PROJECT_NAME}-Demo)
-
+IF(MSVC)
+  add_custom_target(examples COMMAND ${CMAKE_BUILD_TYPE}/${PROJECT_NAME}-Demo)
+else()
+  add_custom_target(examples COMMAND bin/${PROJECT_NAME}-Demo)
+endif()
 #include(CodeCoverage.cmake)
 #SETUP_TARGET_FOR_COVERAGE(
 #        coverage_${PROJECT_NAME}-Demo  # Name for custom target.
