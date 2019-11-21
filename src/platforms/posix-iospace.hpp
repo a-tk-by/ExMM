@@ -1,3 +1,7 @@
+#pragma once
+#ifndef _POSIX_IOSPACE_HPP_
+#define _POSIX_IOSPACE_HPP_
+
 #if !defined(_WIN32)
 
 #include "../exmm/platform.hpp"
@@ -31,4 +35,5 @@ namespace Posix {
 }}
 
 
+#endif
 #endif

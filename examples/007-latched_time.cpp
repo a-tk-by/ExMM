@@ -25,7 +25,7 @@ struct Controller007 final : public ControllerBase<HookTypes::Read, Registers>
               latchedLoValue()
     {}
     
-    void HookRead(Registers *data, size_t offset) override
+    void HookRead(volatile Registers *data, size_t offset) override
     {
         std::cout << "Before read at offset " << std::hex << offset << std::endl;
         
@@ -56,8 +56,8 @@ TEST(LatchedTimeAccessCase, latchedTimeAccess)
 {
     std::cout << "Access time latched in register pair when accessed highest part"
               << std::endl;
-    
-    Controller007 controller;
+
+    const Controller007 controller;
     auto *registers = controller.GetIoArea();
     
     std::vector<uint32_t> values;

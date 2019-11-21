@@ -13,12 +13,14 @@ namespace ExMM
         bool Active;
 
         BreakPointData();
+        ~BreakPointData() = default;
 
         void Set(ExMM::IoSpace* ioSpace);
 
         void Set(ExMM::IoSpace* ioSpace, ExMM::ControllerInterface* controller, size_t offset);
 
         void Unset();
+
 
         BreakPointData(const BreakPointData&) = delete;
         BreakPointData(BreakPointData&&) = delete;

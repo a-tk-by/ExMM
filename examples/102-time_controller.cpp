@@ -114,11 +114,11 @@ static_assert(sizeof(Registers::StatusBits_t) == sizeof(uint32_t), "Status bits 
 struct Controller009 final : public ControllerBase<HookTypes::ReadWrite, Registers>
 {
     Controller009()
-            : latchedCurrentTimeLo(), shadowControl(), shadowStatus(), whenStartedRegisterTime(),
-              timerThreadControl(TimerThreadControl::Idle),
-              timerThread(std::thread([this]() {
+            : latchedCurrentTimeLo(), shadowControl(), shadowStatus(), timerThread(std::thread([this]() {
                   this->TimerThread();
-              }))
+              })),
+              timerThreadControl(TimerThreadControl::Idle),
+              whenStartedRegisterTime()
     {
     
     }
@@ -129,7 +129,7 @@ struct Controller009 final : public ControllerBase<HookTypes::ReadWrite, Registe
         timerThread.join();
     }
     
-    void HookRead(Registers *data, size_t offset) override
+    void HookRead(volatile Registers *data, size_t offset) override
     {
         std::cout << "Hook read #" << offset << " : ";
         
@@ -161,7 +161,7 @@ struct Controller009 final : public ControllerBase<HookTypes::ReadWrite, Registe
         std::cout << std::endl;
     }
     
-    void HookWrite(Registers *data, size_t offset) override
+    void HookWrite(volatile Registers *data, size_t offset) override
     {
         std::cout << "Hook write #" << offset << " : ";
         
@@ -234,7 +234,7 @@ private:
         return shadowControl = value;
     }
     
-    uint32_t GetCurrentTime(uint32_t &lowPart)
+    uint32_t GetCurrentTime(uint32_t &lowPart) const
     {
         const auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
                 std::chrono::high_resolution_clock::now() - whenStarted).count();
@@ -248,7 +248,7 @@ private:
             bool triggerCurrentTimer = false;
             if (timeHi > timers[i].TriggerTimeHi) {
                 triggerCurrentTimer = true;
-            } else if (timeHi, timers[i].TriggerTimeHi && timeLo > timers[i].TriggerTimeLo) {
+            } else if (timeHi == timers[i].TriggerTimeHi && timeLo > timers[i].TriggerTimeLo) {
                 triggerCurrentTimer = true;
             }
             

@@ -16,6 +16,7 @@ namespace Windows {
         IoSpace(size_t size, ExMM::HookTypes hookTypes);
 
         IoSpace(const IoSpace&) = delete;
+        IoSpace& operator=(const IoSpace&) = delete;
 
         ExMM::IoSpace* Initialize();
 

@@ -9,9 +9,9 @@ namespace ExMM
     struct ControllerInterface
     {
         virtual ~ControllerInterface() = default;
-        virtual void DoHookRead(void* data, size_t offset) = 0;
-        virtual void DoHookWrite(void* data, size_t offset) = 0;
-        virtual void DoInitialize(void* data) = 0;
+        virtual void DoHookRead(volatile void* data, size_t offset) = 0;
+        virtual void DoHookWrite(volatile void* data, size_t offset) = 0;
+        virtual void DoInitialize(volatile void* data) = 0;
         virtual HookTypes GetHookTypes() = 0;
     protected:
         ControllerInterface() = default;

@@ -41,12 +41,12 @@ struct Controller005 final : public ControllerBase<HookTypes::Read, Registers>
         backgroundThread.join();
     }
     
-    void HookRead(Registers *data, size_t offset) override
+    void HookRead(volatile Registers *data, size_t offset) override
     {
         std::cout << "[Read] << " << offset << std::endl;
         
         SwitchField(data, offset)
-                .Case<int>(&Registers::Counter, [](volatile int &counter) {
+                .Case(&Registers::Counter, [](auto &counter) {
                     std::cout << "Polling counter: " << std::dec << counter << std::endl;
                 });
     }
@@ -61,8 +61,8 @@ private:
 TEST(RandomEventCounterCase, randomEventCounter)
 {
     std::cout << "Background thread counts some events what occured with random interval" << std::endl;
-    
-    Controller005 controller;
+
+    const Controller005 controller;
     auto *registers = controller.GetIoArea();
     
     std::vector<int> values;

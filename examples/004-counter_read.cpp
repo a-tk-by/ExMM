@@ -17,7 +17,7 @@ struct Registers
 
 struct Controller004 final : public ControllerBase<HookTypes::Read, Registers>
 {
-    void HookRead(Registers *data, size_t offset) override
+    void HookRead(volatile Registers *data, size_t offset) override
     {
         std::cout << "Before read at offset " << std::hex << offset << std::endl;
         
@@ -39,8 +39,8 @@ struct Controller004 final : public ControllerBase<HookTypes::Read, Registers>
 TEST(ReadAccessCounterCase, readAccessCounter)
 {
     std::cout << "Register A counts read access" << std::endl;
-    
-    Controller004 controller;
+
+    const Controller004 controller;
     auto *registers = controller.GetIoArea();
     
     std::vector<int> values;
