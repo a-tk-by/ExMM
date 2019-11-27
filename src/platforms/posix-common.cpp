@@ -11,31 +11,6 @@
 #include <stdexcept>
 #include <cstring>
 
-
-static void CallOldHandler(struct sigaction& action, int sig, siginfo_t* info, void* context, bool kill)
-{
-    if (action.sa_flags & SA_SIGINFO)
-    {
-        if (action.sa_sigaction)
-        {
-            action.sa_sigaction(sig, info, context);
-        }
-    }
-    else
-    {
-        if (action.sa_handler == SIG_IGN) return;
-        if (action.sa_handler == SIG_DFL)
-        {
-            if (kill) exit(1);
-            return;
-        }
-        if (action.sa_handler)
-        {
-            action.sa_handler(sig);
-        }
-    }
-}
-
 ExMM::IoSpace* ExMM::Platform::AllocateIoSpace(size_t size, ExMM::HookTypes hookTypes)
 {
     return (new Posix::IoSpace(size, hookTypes))->Initialize();
@@ -51,7 +26,7 @@ static void AccessViolationHandler(int sig, siginfo_t* info, void* context)
 
     if (!ExMM::Registry::FindController(info->si_addr, controller, ioSpace, offset))
     {
-        CallOldHandler(oldAccessHandler, sig, info, context, true);
+        exit(1);
         return;
     }
 
@@ -59,14 +34,12 @@ static void AccessViolationHandler(int sig, siginfo_t* info, void* context)
     {
         ioSpace->Unprotect();
         ExMM::Platform::InstallBreakPoint(context, ExMM::Posix::GetInstructionAddress(context), ioSpace, controller, offset);
-        return;
     }
     else
     {
         controller->DoHookRead(ioSpace->GetPrivateArea(), offset);
         ioSpace->Unprotect();
         ExMM::Platform::InstallBreakPoint(context, ExMM::Posix::GetInstructionAddress(context), ioSpace);
-        return;
     }
 }
 
@@ -94,7 +67,11 @@ void ExMM::Platform::RegisterHandlers()
     struct sigaction av_action = {};
     av_action.sa_sigaction = AccessViolationHandler;
     av_action.sa_flags = SA_SIGINFO;
-    if (sigaction(SIGSEGV, &av_action, &oldAccessHandler) < 0)
+    if (sigaction(SIGSEGV, &av_action, nullptr) < 0)
+    {
+        throw std::runtime_error("Cannot register SISEGV handler");
+    }
+    if (sigaction(SIGBUS, &av_action, nullptr) < 0)
     {
         throw std::runtime_error("Cannot register SISEGV handler");
     }
