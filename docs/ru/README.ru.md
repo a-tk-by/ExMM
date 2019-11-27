@@ -1,3 +1,5 @@
+﻿[![Build Status](https://travis-ci.com/Alexey-Tkachenko/ExMM.svg?branch=master)](https://travis-ci.com/Alexey-Tkachenko/ExMM)
+
 [Введение](motivation.ru.md)
 [Архитектура бибиотеки](architecture.ru.md)
 [Схема перехвата](hooking.ru.md)
