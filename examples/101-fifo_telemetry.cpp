@@ -200,7 +200,7 @@ TEST(FifoTelemetryReaderCase, fifoTelemetryReader)
 
     ExMM::Run([&values, &registers, &interruptHandled, &controller]()
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds{4000});
+        std::this_thread::sleep_for(std::chrono::milliseconds{1000});
 
         const uint32_t status = registers->Status;
         values.push_back(status);
@@ -219,7 +219,7 @@ TEST(FifoTelemetryReaderCase, fifoTelemetryReader)
         values.push_back(uint32_t{ registers->Telemetry[3] });
 
         // Latch record and read TM
-        for (int i = 0; i < 1000; ++i)
+        for (int i = 0; i < 100; ++i)
         {
             if (registers->StatusFields.StatusFifoEmpty)
             {
@@ -241,13 +241,13 @@ TEST(FifoTelemetryReaderCase, fifoTelemetryReader)
         }
     });
 
-    EXPECT_EQ(values.size(), (1 + 4 + 1000*4));
-    EXPECT_GT(values[0] & 0xFFu, 0);
+    EXPECT_EQ(values.size(), (1 + 4 + 100*4));
+    EXPECT_GT(values[0] & 0xFFu, 0u);
     EXPECT_EQ(values[1], 0);
     EXPECT_EQ (values[2], 0);
     EXPECT_EQ(values[3], 0);
     EXPECT_EQ(values[4], 0);
-    EXPECT_EQ(-1, CheckCountersAndBits(values, 5, 1000));
+    EXPECT_EQ(-1, CheckCountersAndBits(values, 5, 100));
 }
 
 int CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std::size_t count)
