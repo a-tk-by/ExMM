@@ -27,7 +27,7 @@ ExMM::IoSpace* ExMM::Posix::IoSpace::Initialize()
     unlink(buffer);
 
     privateArea = mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, file, 0);
-    if (errno) 
+    if (privateArea == MAP_FAILED) 
     {
         privateArea = nullptr;
         throw std::runtime_error(strerror(errno));
@@ -49,7 +49,7 @@ ExMM::IoSpace* ExMM::Posix::IoSpace::Initialize()
     }
 
     publicArea = mmap(nullptr, size, publicFlags, MAP_SHARED, file, 0);
-    if (errno) 
+    if (publicArea == MAP_FAILED) 
     {
         publicArea = nullptr;
         throw std::runtime_error(strerror(errno));
