@@ -19,11 +19,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+
 add_subdirectory(googletest)
 
 add_subdirectory(src)
-
-
 
 file(GLOB_RECURSE EXAMPLES ./examples/*.cpp)
 add_executable("${PROJECT_NAME}" ${EXAMPLES})
@@ -39,6 +38,26 @@ IF(MSVC)
 else()
   add_custom_target(examples COMMAND bin/${PROJECT_NAME})
 endif()
+
+
+set(BENCHMARK_ENABLE_TESTING OFF)
+add_subdirectory(google-benchmark)
+
+
+file(GLOB_RECURSE BENCHMARKS_SRC ./benchmarks/*.cpp)
+add_executable(ExMM-benchmark ${BENCHMARKS_SRC})
+set_property(TARGET ExMM-benchmark   PROPERTY CXX_STANDARD 17)
+target_link_libraries(ExMM-benchmark  ExMM benchmark benchmark_main)
+
+
+IF(MSVC)
+    add_custom_target(benchmarks COMMAND bin/${CMAKE_BUILD_TYPE}/ExMM-benchmark)
+else()
+    add_custom_target(benchmarks COMMAND bin/ExMM-benchmark)
+endif()
+
+
+
 #include(CodeCoverage.cmake)
 
 #SETUP_TARGET_FOR_COVERAGE(
