@@ -2,7 +2,7 @@
 
 #include <signal.h>
 
-#include "common.hpp"
+#include "breakpoint.hpp"
 #include "posix-common.hpp"
 #include "../exmm/platform.hpp"
 

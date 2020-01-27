@@ -5,7 +5,7 @@
 #include "../exmm/registry.hpp"
 #include "posix-iospace.hpp"
 #include "posix-common.hpp"
-#include "common.hpp"
+#include "breakpoint.hpp"
 
 #include <csignal>
 #include <stdexcept>
