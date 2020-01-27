@@ -174,7 +174,8 @@ private:
     } shadowStatus = {};
 };
 
-int CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std::size_t count);
+std::size_t CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std::size_t count);
+constexpr std::size_t CheckCountersAndBitsOk = ~std::size_t{};
 
 TEST(FifoTelemetryReaderCase, fifoTelemetryReader)
 {
@@ -200,7 +201,7 @@ TEST(FifoTelemetryReaderCase, fifoTelemetryReader)
 
     ExMM::Run([&values, &registers, &interruptHandled, &controller]()
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds{1000});
+        std::this_thread::sleep_for(std::chrono::seconds{4});
 
         const uint32_t status = registers->Status;
         values.push_back(status);
@@ -247,10 +248,10 @@ TEST(FifoTelemetryReaderCase, fifoTelemetryReader)
     EXPECT_EQ (values[2], 0);
     EXPECT_EQ(values[3], 0);
     EXPECT_EQ(values[4], 0);
-    EXPECT_EQ(-1, CheckCountersAndBits(values, 5, 1000));
+    EXPECT_EQ(CheckCountersAndBitsOk, CheckCountersAndBits(values, 5, 1000));
 }
 
-int CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std::size_t count)
+std::size_t CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std::size_t count)
 {
     for (std::size_t i = 0; i < count; ++i)
     {
@@ -266,5 +267,5 @@ int CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offset, std:
         if ((tmp[3] & 0xFFFF) != i) return i;
     }
 
-    return -1;
+    return CheckCountersAndBitsOk;
 }
