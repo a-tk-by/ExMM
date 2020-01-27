@@ -27,6 +27,11 @@ add_subdirectory(src)
 file(GLOB_RECURSE EXAMPLES ./examples/*.cpp)
 add_executable("${PROJECT_NAME}" ${EXAMPLES})
 set_property(TARGET "${PROJECT_NAME}"  PROPERTY CXX_STANDARD 17)
+
+IF(MSVC)
+    SET(CMAKE_CXX_FLAGS "/Zc:__cplusplus ${CMAKE_CXX_FLAGS}")
+endif()
+
 target_link_libraries("${PROJECT_NAME}" ExMM gtest gtest_main)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
