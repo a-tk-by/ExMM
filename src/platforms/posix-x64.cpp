@@ -20,20 +20,20 @@ void* ExMM::Posix::GetInstructionAddress(void* _context)
 
 void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace* ioSpace)
 {
-    BreakPointData::Get().Set(ioSpace);
+    BreakPointData<>::Get().Set(ioSpace);
     reinterpret_cast<ucontext_t*>(context)->uc_mcontext.gregs[REG_EFL] |= 0x100;
 }
 
 void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace* ioSpace, ControllerInterface* controller,
     size_t offset)
 {
-    BreakPointData::Get().Set(ioSpace, controller, offset);
+    BreakPointData<>::Get().Set(ioSpace, controller, offset);
     reinterpret_cast<ucontext_t*>(context)->uc_mcontext.gregs[REG_EFL] |= 0x100;
 }
 
 void ExMM::Platform::UninstallBreakPoint(void* context)
 {
-    BreakPointData::Get().Unset();
+    BreakPointData<>::Get().Unset();
     reinterpret_cast<ucontext_t*>(context)->uc_mcontext.gregs[REG_EFL] &=~ 0x100;
 }
 

@@ -8,7 +8,7 @@
 #include <cstddef>
 
 #include "windows-iospace.hpp"
-#include "common.hpp"
+#include "breakpoint.hpp"
 
 static const DWORD TRAP_FLAG_MASK = 0x100;
 
@@ -100,7 +100,7 @@ static void InstallBreakPoint(void* context)
 void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace* ioSpace)
 {
     (void)instruction;
-    BreakPointData::Get().Set(ioSpace);
+    BreakPointData<>::Get().Set(ioSpace);
     ::InstallBreakPoint(context);
 }
 
@@ -108,14 +108,14 @@ void ExMM::Platform::InstallBreakPoint(void* context, void* instruction, IoSpace
     size_t offset)
 {
     (void)instruction;
-    BreakPointData::Get().Set(ioSpace, controller, offset);
+    BreakPointData<>::Get().Set(ioSpace, controller, offset);
     ::InstallBreakPoint(context);
 }
 
 bool ExMM::Platform::GetBreakPoint(void* context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset)
 {
     (void)context;
-    auto& breakPointData = BreakPointData::Get();
+    auto& breakPointData = BreakPointData<>::Get();
     if (breakPointData.Active)
     {
         ioSpace = breakPointData.IoSpace;
@@ -129,7 +129,7 @@ bool ExMM::Platform::GetBreakPoint(void* context, IoSpace*& ioSpace, ControllerI
 void ExMM::Platform::UninstallBreakPoint(void* context)
 {
     reinterpret_cast<PCONTEXT>(context)->EFlags &= ~ TRAP_FLAG_MASK;
-    BreakPointData::Get().Unset();
+    BreakPointData<>::Get().Unset();
 }
 
 void ExMM::Platform::Run(const std::function<void()>& function)

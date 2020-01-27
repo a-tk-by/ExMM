@@ -89,7 +89,7 @@ void ExMM::Platform::RegisterHandlers()
 bool ExMM::Platform::GetBreakPoint(void* context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset)
 {
     (void)context;
-    BreakPointData& breakPointData = BreakPointData::Get();
+    BreakPointData& breakPointData = BreakPointData<>::Get();
     if (breakPointData.Active)
     {
         ioSpace = breakPointData.IoSpace;
