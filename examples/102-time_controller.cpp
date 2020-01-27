@@ -1,6 +1,8 @@
-#include <gtest/gtest.h>
+#if __cplusplus >= 201700L
 
 #include "../src/exmm.hpp"
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <cstddef>
@@ -385,4 +387,7 @@ TEST(TimeControllerCase, timeController)
     EXPECT_EQ(values[5], 0);
     EXPECT_NE(values[6], 0);
 }
+
+
+#endif
 
