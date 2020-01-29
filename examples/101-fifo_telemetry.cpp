@@ -1,3 +1,5 @@
+#if __cplusplus >= 201700L
+
 #include <gtest/gtest.h>
 
 #include "../src/exmm.hpp"
@@ -269,3 +271,6 @@ std::size_t CheckCountersAndBits(std::vector<uint32_t>& values, std::size_t offs
 
     return CheckCountersAndBitsOk;
 }
+
+
+#endif
