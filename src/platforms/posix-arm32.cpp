@@ -33,7 +33,7 @@ struct Bkpt
 bool ExMM::Posix::IsMemoryWriteAccess(void* _context)
 {
     auto context = reinterpret_cast<ucontext_t*>(_context);
-    return context->uc_mcontext.error_code & (1 << 11); // See FSR_WRITE macro in /arch/arm/fault.h header in Linux repository
+    return context->uc_mcontext.error_code & (1 << 11); // See FSR_WRITE macro in /arch/arm/mm/fault.h header in Linux repository
 }
 
 void* ExMM::Posix::GetInstructionAddress(void* _context)
