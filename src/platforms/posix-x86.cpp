@@ -37,4 +37,18 @@ void ExMM::Platform::UninstallBreakPoint(void* context)
     reinterpret_cast<ucontext_t*>(context)->uc_mcontext.gregs[REG_EFL] &=~ 0x100;
 }
 
+bool ExMM::Platform::GetBreakPoint(void* context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset)
+{
+    (void)context;
+    auto& breakPointData = BreakPointData<>::Get();
+    if (breakPointData.Active)
+    {
+        ioSpace = breakPointData.IoSpace;
+        controller = breakPointData.Controller;
+        offset = breakPointData.Offset;
+        return true;
+    }
+    return false;
+}
+
 #endif

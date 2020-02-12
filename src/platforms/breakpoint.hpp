@@ -19,30 +19,32 @@ namespace ExMM
         BreakPointData() : IoSpace(), Controller(), Offset(), Active(false), Payload() {}
         ~BreakPointData() = default;
 
-        void Set(ExMM::IoSpace* ioSpace)
+        BreakPointData& Set(ExMM::IoSpace* ioSpace)
         {
             IoSpace = ioSpace;
             Controller = nullptr;
             Offset = 0;
             Active = true;
+            return *this;
         }
 
-        void Set(ExMM::IoSpace* ioSpace, ExMM::ControllerInterface* controller, size_t offset)
+        BreakPointData& Set(ExMM::IoSpace* ioSpace, ExMM::ControllerInterface* controller, size_t offset)
         {
             IoSpace = ioSpace;
             Controller = controller;
             Offset = offset;
             Active = true;
+            return *this;
         }
 
-        void Unset()
+        BreakPointData& Unset()
         {
             IoSpace = nullptr;
             Controller = nullptr;
             Offset = 0;
             Active = false;
+            return *this;
         }
-
 
         BreakPointData(const BreakPointData&) = delete;
         BreakPointData(BreakPointData&&) = delete;

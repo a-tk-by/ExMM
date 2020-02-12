@@ -1,11 +1,9 @@
 #if !defined(_WIN32)
 
-
 #include "../exmm/platform.hpp"
 #include "../exmm/registry.hpp"
 #include "posix-iospace.hpp"
 #include "posix-common.hpp"
-#include "breakpoint.hpp"
 
 #include <csignal>
 #include <stdexcept>
@@ -26,7 +24,7 @@ static void AccessViolationHandler(int sig, siginfo_t* info, void* context)
 
     if (!ExMM::Registry::FindController(info->si_addr, controller, ioSpace, offset))
     {
-        exit(1);
+        signal(sig, SIG_DFL);
         return;
     }
 
@@ -84,20 +82,6 @@ void ExMM::Platform::RegisterHandlers()
     {
         throw std::runtime_error("Cannot register SIGTRAP handler");
     }
-}
-
-bool ExMM::Platform::GetBreakPoint(void* context, IoSpace*& ioSpace, ControllerInterface*& controller, size_t& offset)
-{
-    (void)context;
-    auto& breakPointData = BreakPointData<>::Get();
-    if (breakPointData.Active)
-    {
-        ioSpace = breakPointData.IoSpace;
-        controller = breakPointData.Controller;
-        offset = breakPointData.Offset;
-        return true;
-    }
-    return false;
 }
 
 void ExMM::Platform::Run(const std::function<void()>& function)
