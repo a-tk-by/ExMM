@@ -44,7 +44,7 @@ else()
   add_custom_target(examples COMMAND bin/${PROJECT_NAME})
 endif()
 
-
+option(BENCHMARK_ENABLE_TESTING OFF)
 set(BENCHMARK_ENABLE_TESTING OFF)
 add_subdirectory(google-benchmark)
 
