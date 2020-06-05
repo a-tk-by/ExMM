@@ -30,9 +30,6 @@ namespace ExMM
         virtual void HookWrite(volatile RegisterSetType* data, size_t offset)
         {}
 
-        virtual void Initialize(volatile RegisterSetType* data)
-        {}
-
         volatile RegisterSetType* GetIoArea() const
         {
             return publicIoArea;
@@ -110,11 +107,6 @@ namespace ExMM
         {
             std::lock_guard<std::recursive_mutex> guard(memoryLockMutex);
             HookRead(static_cast<volatile RegisterSetType*>(data), offset);
-        }
-
-        void DoInitialize(volatile void* data) override
-        {
-            Initialize(static_cast<volatile RegisterSetType*>(data));
         }
 
         RegisterSetType* publicIoArea;
