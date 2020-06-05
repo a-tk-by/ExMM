@@ -59,8 +59,8 @@ namespace ExMM
         ControllerBase()
         {
             struct IoSpace *ioSpace = Registry::Add(this, sizeof(RegisterSetType), HookType);
-            publicIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPublicArea());
-            privateIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPrivateArea());
+            publicIoArea = static_cast<RegisterSetType*>(ioSpace->GetPublicArea());
+            privateIoArea = static_cast<RegisterSetType*>(ioSpace->GetPrivateArea());
         }
 
         volatile RegisterSetType* GetPrivateIoArea() const
@@ -73,8 +73,8 @@ namespace ExMM
         {
             struct IoSpace *ioSpace = Registry::Add(this, size, HookType);
 
-            this->publicIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPublicArea());
-            this->privateIoArea = reinterpret_cast<RegisterSetType*>(ioSpace->GetPrivateArea());
+            this->publicIoArea = static_cast<RegisterSetType*>(ioSpace->GetPublicArea());
+            this->privateIoArea = static_cast<RegisterSetType*>(ioSpace->GetPrivateArea());
         }
 
         void TriggerInterrupt(int vector = 0)
@@ -103,18 +103,18 @@ namespace ExMM
         void DoHookWrite(volatile void* data, size_t offset) override
         {
             std::lock_guard<std::recursive_mutex> guard(memoryLockMutex);
-            HookWrite(reinterpret_cast<volatile RegisterSetType*>(data), offset);
+            HookWrite(static_cast<volatile RegisterSetType*>(data), offset);
         }
 
         void DoHookRead(volatile void* data, size_t offset) override
         {
             std::lock_guard<std::recursive_mutex> guard(memoryLockMutex);
-            HookRead(reinterpret_cast<volatile RegisterSetType*>(data), offset);
+            HookRead(static_cast<volatile RegisterSetType*>(data), offset);
         }
 
         void DoInitialize(volatile void* data) override
         {
-            Initialize(reinterpret_cast<volatile RegisterSetType*>(data));
+            Initialize(static_cast<volatile RegisterSetType*>(data));
         }
 
         RegisterSetType* publicIoArea;
