@@ -10,10 +10,7 @@ struct Controller200 final : public ControllerBase<HookTypes::None>
 
     Controller200() : ControllerBase(1024 * sizeof(uint32_t))
     {
-        std::cout << __FUNCTION__;
-        std::getchar();
-
-        volatile uint32_t* data = static_cast<volatile uint32_t*>(this->GetPrivateIoArea());
+        volatile uint32_t* data = static_cast<volatile uint32_t*>(GetPrivateIoArea());
         for (size_t i = 0; i < count; ++i)
         {
             data[i] = 0xDEADBEEFu ^ i;
