@@ -114,9 +114,9 @@ struct Registers
 static_assert(sizeof(Registers::ControlBits_t) == sizeof(uint32_t), "Control bits must be 32-bit word");
 static_assert(sizeof(Registers::StatusBits_t) == sizeof(uint32_t), "Status bits must be 32-bit word");
 
-struct Controller009 final : public ControllerBase<HookTypes::ReadWrite, Registers>
+struct Controller102 final : public ControllerBase<HookTypes::ReadWrite, Registers>
 {
-    Controller009()
+    Controller102()
             : latchedCurrentTimeLo(), shadowControl(), shadowStatus(), timerThread(std::thread([this]() {
                   this->TimerThread();
               })),
@@ -126,7 +126,7 @@ struct Controller009 final : public ControllerBase<HookTypes::ReadWrite, Registe
     
     }
     
-    ~Controller009()
+    ~Controller102()
     {
         timerThreadControl = TimerThreadControl::Abort;
         timerThread.join();
@@ -327,7 +327,7 @@ TEST(TimeControllerCase, timeController)
     
     std::cout << "Simple time controller like in real world" << std::endl;
     
-    Controller009 controller;
+    Controller102 controller;
     auto *registers = controller.GetIoArea();
     
     std::vector<uint32_t> values;

@@ -61,15 +61,15 @@ struct Registers
     volatile uint32_t Telemetry[4];
 };
 
-struct Controller008 final : public ControllerBase<HookTypes::ReadWrite, Registers>
+struct Controller101 final : public ControllerBase<HookTypes::ReadWrite, Registers>
 {
 
-    Controller008() : stopTmGenerator(false)
+    Controller101() : stopTmGenerator(false)
     {
         tmGenerator = std::thread([this]() {GenerateTelemetry(); });
     }
 
-    ~Controller008()
+    ~Controller101()
     {
         stopTmGenerator = true;
         tmGenerator.join();
@@ -183,7 +183,7 @@ TEST(FifoTelemetryReaderCase, fifoTelemetryReader)
 {
     std::cout << "Registers access to FIFO buffer inside controller" << std::endl;
 
-    Controller008 controller;
+    Controller101 controller;
     auto *registers = controller.GetIoArea();
 
     std::atomic_bool interruptHandled;
