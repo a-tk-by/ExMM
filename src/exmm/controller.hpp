@@ -12,6 +12,7 @@
 
 #include "dsl/v1/fieldhelper.hpp"
 
+
 namespace ExMM
 {
     template<HookTypes HookType, typename RegisterSetType = void>
@@ -52,7 +53,7 @@ namespace ExMM
         ControllerBase& operator=(ControllerBase&&) = delete;
 
     protected:
-        template<size_t size = sizeof(RegisterSetType)>
+        template<typename = std::enable_if<!(std::is_same<RegisterSetType, void>::value)> >
         ControllerBase()
         {
             struct IoSpace *ioSpace = Registry::Add(this, sizeof(RegisterSetType), HookType);
